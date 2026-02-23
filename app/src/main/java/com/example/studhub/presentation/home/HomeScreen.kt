@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.studhub.presentation.files.FilesTab
 import com.example.studhub.presentation.navigation.NavigationItem
 import com.example.studhub.presentation.queues.QueuesTab
 import com.example.studhub.presentation.theme.AppBrushes
@@ -136,12 +137,6 @@ fun RequestsTab(){
     }
 }
 
-@Composable
-fun FilesTab(){
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-        Text(text="Files")
-    }
-}
 
 @Preview(showBackground = true)
 @Composable

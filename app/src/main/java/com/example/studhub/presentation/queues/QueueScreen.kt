@@ -138,7 +138,7 @@ fun QueuesListScreen(queues: List<QueueItem>, onQueueClick: (Int) -> Unit) {
                     contentDescription = "Создать новую очередь",
                     modifier = Modifier.size(16.dp)
                 )
-                Spacer(Modifier.width(2.dp))
+                Spacer(Modifier.width(4.dp))
                 Text("Создать")
             }
         }
