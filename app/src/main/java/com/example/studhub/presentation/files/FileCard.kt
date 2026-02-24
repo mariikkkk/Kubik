@@ -1,7 +1,9 @@
 package com.example.studhub.presentation.files
 
+import android.widget.HorizontalScrollView
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -61,7 +64,7 @@ fun FileCard(
     ){
         Row(
             modifier = Modifier
-                .padding(16.dp),
+                .padding(start = 16.dp, top = 16.dp, bottom = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ){
             Image(painter = painterResource(iconId),
@@ -69,7 +72,7 @@ fun FileCard(
                 modifier = Modifier.size(52.dp)
             )
             Spacer(modifier = Modifier.width(10.dp))
-            Column(Modifier.weight(1f)) {
+            Column(Modifier.weight(50f)) {
                 Text(
                     text = file.name,
                     style = MaterialTheme.typography.titleMedium,
@@ -82,11 +85,14 @@ fun FileCard(
                 Text(
                     text = "${file.size} | ${file.date} | ${file.author}",
                     style = MaterialTheme.typography.bodyMedium,
-                    fontSize = 16.sp,
+                    fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.width(500.dp).horizontalScroll(rememberScrollState())
                 )
             }
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.weight(1f))
             IconButton(onClick = onDownloadClick) {
                 Icon(
                     painter = painterResource(R.drawable.download),
@@ -111,6 +117,7 @@ fun FileCardPreview() {
     StudHubTheme() {
         FileCard(
             FileItem(
+                1,
                 1,
                 "Лекция №1",
                 "2.5 MB",

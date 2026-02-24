@@ -43,9 +43,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.studhub.R
 import com.example.studhub.domain.models.FileFolderItem
+import com.example.studhub.presentation.theme.StudHubTheme
 
 @Composable
 fun FilesListScreen(
@@ -227,4 +229,15 @@ fun FilesListScreen(
     }
 
 
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview() {
+    StudHubTheme {
+        FilesListScreen(listOf(FileFolderItem(1,"Математический анализ", 12, 1),
+            FileFolderItem(2,"Дискретная математика", 12, 2),
+            FileFolderItem(3,"Линейная алгебра", 16, 12),
+            FileFolderItem(4,"ООП", 32, 3),), onFolderClick = {}, searchQuery = "", selectedSemeser = 1, onSemesterChange = {}, onSearchQueryChange = {})
+    }
 }

@@ -15,6 +15,7 @@ enum class FileCategory(val title: String){
 }
 data class FileItem(
     val id: Int,
+    val folderId: Int,
     val name: String,
     val size: String,
     val type: FileType,
