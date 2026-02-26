@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -227,22 +228,30 @@ fun QueueDetailsScreen(viewModel: QueuesViewModel, onBackClick: () -> Unit, queu
 
     Column(modifier = Modifier
         .fillMaxSize()
-        .padding(16.dp)) {
+        .padding(horizontal = 12.dp)) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ){
-            IconButton(onClick = onBackClick) { Icon(Icons.Default.ArrowBack, contentDescription = "Назад") }
+            IconButton(onClick = onBackClick)
+            {
+                Icon(
+                    Icons.Default.ArrowBack,
+                    contentDescription = "Назад",
+                    modifier = Modifier.offset(x = (-12).dp))
+            }
+            Text(
+                text = selectedQueue?.title ?: "Ошибка",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.offset(x = (-8).dp)
+            )
         }
-        Text(
-            text = selectedQueue?.title ?: "Ошибка",
-            style = MaterialTheme.typography.headlineMedium
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
+
 
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             items(viewModel.slots) { slot ->
                 QueueSlotItem(slot = slot, onClick = {
-                    val alreadyBorrowed = viewModel.slots.any { it.isMySlot}
+                    val alreadyBorrowed = viewModel.slots.any { it.isMySlot }
                     if (isClosed){
                         Toast.makeText(context, "Очередь закрыта", Toast.LENGTH_SHORT).show()
                     }
@@ -250,7 +259,9 @@ fun QueueDetailsScreen(viewModel: QueuesViewModel, onBackClick: () -> Unit, queu
                         Toast.makeText(context, "Это место уже занято другим студентом", Toast.LENGTH_SHORT).show()
                     }
                     else if(alreadyBorrowed && !slot.isMySlot){
+                        val mySlot = viewModel.slots.find { it.id == slot.id }
                         Toast.makeText(context, "Вы уже записаны на ${selectedQueue?.myPlace} месте", Toast.LENGTH_SHORT).show()
+
                     }
                     else{
                         viewModel.toggleSlot(slot.id, queueId)
@@ -266,10 +277,11 @@ fun QueueDetailsScreen(viewModel: QueuesViewModel, onBackClick: () -> Unit, queu
 @Composable
 fun GreetingPreview() {
     StudHubTheme {
-        QueuesListScreen(
-            listOf(
-                QueueItem(1, "Queue 1", "Subtitle 1", 10, null, "Status 1"),
-                QueueItem(1, "Queue 1", "Subtitle 1", 10, 5, "Status 1")
-            ), onQueueClick = {})
+//        QueuesListScreen(
+//            listOf(
+//                QueueItem(1, "Queue 1", "Subtitle 1", 10, null, "Status 1"),
+//                QueueItem(1, "Queue 1", "Subtitle 1", 10, 5, "Status 1")
+//            ), onQueueClick = {})
+        QueueDetailsScreen(viewModel(), {}, 1)
     }
 }

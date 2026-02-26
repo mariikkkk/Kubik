@@ -23,18 +23,11 @@ private val LightColorScheme = lightColorScheme(
     background = Color.White,       // общий фон
     surface = SurfaceVariant,       // фон карточек
     onPrimary = Color.White,        // текст на основном цвете
-    onBackground = TextPrimary      // текст на общем фоне
-
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
+    onBackground = TextPrimary,      // текст на общем фоне
     onSecondary = Color.White,
     onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
     onSurface = Color(0xFF1C1B1F),
-    */
+
 )
 
 @Composable

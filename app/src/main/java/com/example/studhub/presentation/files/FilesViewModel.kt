@@ -54,5 +54,33 @@ class FilesViewModel: ViewModel() {
     fun updateSelectedSemester(semester: Int){
         selectedSemester = semester
     }
+
+    fun addFile(folderId: Int, fileName: String, category: FileCategory){
+        val newId = (folderFiles.maxOfOrNull { it.id } ?: 0) + 1
+
+        val newFile = FileItem(
+            newId,
+            folderId,
+            fileName,
+            "6.7 MB",
+            FileType.PDF,
+            "26.02.2026",
+            "Котельников",
+            category
+        )
+
+        folderFiles.add(newFile)
+    }
+
+    fun addFileByFolderName(folderName: String, fileName: String, category: FileCategory) {
+        val targetFolder = folderList.find { it.name == folderName }
+        if (targetFolder != null) {
+            addFile(targetFolder.id, fileName, category)
+        }
+    }
+
+    fun deleteFile(fileId: Int){
+        folderFiles.removeIf { it.id == fileId }
+    }
 }
 
