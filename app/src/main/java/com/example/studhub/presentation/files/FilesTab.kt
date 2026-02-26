@@ -20,9 +20,12 @@ fun FilesTab(viewModel: FilesViewModel = viewModel()){
                     selectedFolder = selectedFolderId
             },
             searchQuery = viewModel.searchQuery,
-            selectedSemeser = viewModel.selectedSemester,
+            selectedSemester = viewModel.selectedSemester,
             onSemesterChange = {semester -> viewModel.updateSelectedSemester(semester)},
-            onSearchQueryChange = {query -> viewModel.updateSearchQuery(query)})
+            onSearchQueryChange = {query -> viewModel.updateSearchQuery(query)},
+            onAddFileClick = {fileName, category, targetFolder ->
+                viewModel.addFileByFolderName(targetFolder, fileName, category)
+            })
     }
     else{
         val folderName = viewModel.folderList.find { it.id == selectedFolder }?.name ?: "Ошибка"
@@ -30,7 +33,10 @@ fun FilesTab(viewModel: FilesViewModel = viewModel()){
         val filesForThisFolder = viewModel.folderFiles.filter { it.folderId == selectedFolder }
         FileDetailsScreen(folderName,
             filesForThisFolder,
-                { selectedFolder = null})
+                { selectedFolder = null}, {fileName, category ->
+                    viewModel.addFile(selectedFolder!!, fileName, category)
+            },
+            {fileId -> viewModel.deleteFile(fileId)})
     }
 
 }

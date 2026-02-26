@@ -46,7 +46,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.studhub.R
+import com.example.studhub.domain.models.FileCategory
 import com.example.studhub.domain.models.FileFolderItem
+import com.example.studhub.presentation.files.components.CustomUploadDialog
 import com.example.studhub.presentation.theme.StudHubTheme
 
 @Composable
@@ -54,11 +56,13 @@ fun FilesListScreen(
     filesFolders: List<FileFolderItem>,
     onFolderClick: (Int) -> Unit,
     searchQuery: String,
-    selectedSemeser: Int,
+    selectedSemester: Int,
     onSemesterChange: (Int) -> Unit,
-    onSearchQueryChange: (String) -> Unit
+    onSearchQueryChange: (String) -> Unit,
+    onAddFileClick: (String, FileCategory, String) -> Unit
 ) {
     var expaneded by remember { mutableStateOf(false) } // Состояние для открытия/закрытия списка семестров
+    var showAddDialog by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -86,7 +90,7 @@ fun FilesListScreen(
                     )
                     {
                         Text(
-                            text = "$selectedSemeser семестр",
+                            text = "$selectedSemester семестр",
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
                             //modifier = Modifier.padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
@@ -220,11 +224,24 @@ fun FilesListScreen(
             }
         }
         FloatingActionButton(
-            onClick = { },
+            onClick = { showAddDialog = true },
             modifier = Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = 16.dp)
         ){
             Icon(painter = painterResource(R.drawable.download),
                 contentDescription = "Добавить")
+        }
+        if (showAddDialog){
+            val allFolders = filesFolders.map {it.name}
+            val defaultFolder = allFolders.firstOrNull() ?: ""
+            CustomUploadDialog(
+                defaultFolder,
+                allFolders,
+                onDismiss = { showAddDialog = false },
+                onUploadClick = { fileName, category, targetFolder ->
+                    onAddFileClick(fileName, category, targetFolder)
+                    showAddDialog = false
+                }
+            )
         }
     }
 
@@ -238,6 +255,6 @@ fun GreetingPreview() {
         FilesListScreen(listOf(FileFolderItem(1,"Математический анализ", 12, 1),
             FileFolderItem(2,"Дискретная математика", 12, 2),
             FileFolderItem(3,"Линейная алгебра", 16, 12),
-            FileFolderItem(4,"ООП", 32, 3),), onFolderClick = {}, searchQuery = "", selectedSemeser = 1, onSemesterChange = {}, onSearchQueryChange = {})
+            FileFolderItem(4,"ООП", 32, 3),), onFolderClick = {}, searchQuery = "", selectedSemester = 1, onSemesterChange = {}, onSearchQueryChange = {}, onAddFileClick = { s,d,f ->})
     }
 }
