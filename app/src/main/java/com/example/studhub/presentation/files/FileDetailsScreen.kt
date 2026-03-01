@@ -66,6 +66,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.studhub.R
 import com.example.studhub.domain.models.FileCategory
+import com.example.studhub.domain.models.FileFolderItem
 import com.example.studhub.domain.models.FileItem
 import com.example.studhub.presentation.files.components.CustomUploadDialog
 import com.example.studhub.presentation.files.components.FileCard
@@ -74,6 +75,7 @@ import com.example.studhub.presentation.theme.StudHubTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FileDetailsScreen(
+    folderId: Int,
     folderName: String,
     files: List<FileItem>,
     onBackClick: () -> Unit,
@@ -232,7 +234,10 @@ fun FileDetailsScreen(
                 contentDescription = "Добавить")
         }
         if(showAddDialog){
-            CustomUploadDialog(folderName,  listOf(folderName, "Английский"), onDismiss = {showAddDialog = false},
+            CustomUploadDialog(
+                listOf(FileFolderItem(folderId, folderName, 0, 0)),
+                folderId,
+                onDismiss = {showAddDialog = false},
                 onUploadClick = {
                 name, category, folder ->
                     onAddFileClick(name, category)
@@ -327,10 +332,3 @@ fun FileDetailsScreen(
 //
 //}
 
-@Preview
-@Composable
-fun DialogPreview(){
-    StudHubTheme() {
-        CustomUploadDialog("Матан", listOf("Математический анализ"),{}, { String, FileCategory, folder ->})
-    }
-}
