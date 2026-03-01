@@ -5,28 +5,27 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.studhub.data.FirebaseFilesRepositoryImpl
 import com.example.studhub.domain.models.FileCategory
 import com.example.studhub.domain.models.FileFolderItem
 import com.example.studhub.domain.models.FileItem
 import com.example.studhub.domain.models.FileType
+import com.example.studhub.domain.repository.FilesRepository
+import kotlinx.coroutines.launch
 
 class FilesViewModel: ViewModel() {
 
-    private val _folderList = mutableStateListOf(
-        FileFolderItem(1,"Математический анализ", 12, 1),
-        FileFolderItem(10,"Математический анализ", 12, 1),
-        FileFolderItem(11,"Математический анализ", 12, 1),
-        FileFolderItem(12,"Математический анализ", 12, 1),
-        FileFolderItem(13,"Математический анализ", 12, 1),
-        FileFolderItem(14,"Математический анализ", 12, 1),
-        FileFolderItem(15,"Математический анализ", 12, 1),
-        FileFolderItem(16,"Математический анализ", 12, 1),
-        FileFolderItem(2,"Дискретная математика", 12, 2),
-        FileFolderItem(3,"Линейная алгебра", 16, 12),
-        FileFolderItem(4,"ООП", 32, 4),
+    private val repository: FilesRepository = FirebaseFilesRepositoryImpl()
+    private var _firebaseFolders by mutableStateOf<List<FileFolderItem>>(emptyList())
+    init{
+        viewModelScope.launch{
+            repository.getFolders().collect { foldersFromDb ->
+                _firebaseFolders = foldersFromDb
+            }
+        }
+    }
 
-
-    )
 
     val folderFiles = mutableStateListOf(
         FileItem(1, 1,"Лекция №1", "2.5 MB", FileType.PDF, "01.02.2024", "Иванов И.И.", FileCategory.LECTURES),
@@ -42,8 +41,9 @@ class FilesViewModel: ViewModel() {
 
     var selectedSemester by mutableStateOf(1)  // П
     private set
+
     val folderList: List<FileFolderItem>
-        get() = _folderList.filter { folder ->
+        get() = _firebaseFolders.filter { folder ->
             folder.semester == selectedSemester &&
                     folder.name.contains(searchQuery, ignoreCase = true)
         }
@@ -70,13 +70,6 @@ class FilesViewModel: ViewModel() {
         )
 
         folderFiles.add(newFile)
-    }
-
-    fun addFileByFolderName(folderName: String, fileName: String, category: FileCategory) {
-        val targetFolder = folderList.find { it.name == folderName }
-        if (targetFolder != null) {
-            addFile(targetFolder.id, fileName, category)
-        }
     }
 
     fun deleteFile(fileId: Int){
