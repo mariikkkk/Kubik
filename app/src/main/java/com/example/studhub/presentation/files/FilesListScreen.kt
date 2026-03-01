@@ -59,7 +59,7 @@ fun FilesListScreen(
     selectedSemester: Int,
     onSemesterChange: (Int) -> Unit,
     onSearchQueryChange: (String) -> Unit,
-    onAddFileClick: (String, FileCategory, String) -> Unit
+    onAddFileClick: (String, FileCategory, Int) -> Unit
 ) {
     var expaneded by remember { mutableStateOf(false) } // Состояние для открытия/закрытия списка семестров
     var showAddDialog by remember { mutableStateOf(false) }
@@ -234,11 +234,11 @@ fun FilesListScreen(
             val allFolders = filesFolders.map {it.name}
             val defaultFolder = allFolders.firstOrNull() ?: ""
             CustomUploadDialog(
-                defaultFolder,
-                allFolders,
+                filesFolders,
+                filesFolders.firstOrNull()!!.id,
                 onDismiss = { showAddDialog = false },
-                onUploadClick = { fileName, category, targetFolder ->
-                    onAddFileClick(fileName, category, targetFolder)
+                onUploadClick = { fileName, category, folderId ->
+                    onAddFileClick(fileName, category, folderId)
                     showAddDialog = false
                 }
             )
