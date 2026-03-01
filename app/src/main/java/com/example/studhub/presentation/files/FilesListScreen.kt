@@ -1,5 +1,6 @@
 package com.example.studhub.presentation.files
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -21,13 +22,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -39,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
@@ -48,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import com.example.studhub.R
 import com.example.studhub.domain.models.FileCategory
 import com.example.studhub.domain.models.FileFolderItem
+import com.example.studhub.presentation.files.components.CustomFolderDialog
 import com.example.studhub.presentation.files.components.CustomUploadDialog
 import com.example.studhub.presentation.theme.StudHubTheme
 
@@ -59,10 +65,13 @@ fun FilesListScreen(
     selectedSemester: Int,
     onSemesterChange: (Int) -> Unit,
     onSearchQueryChange: (String) -> Unit,
-    onAddFileClick: (String, FileCategory, Int) -> Unit
+    onAddFileClick: (String, FileCategory, Int) -> Unit,
+    onAddFolderClick: (String) -> Unit
 ) {
     var expaneded by remember { mutableStateOf(false) } // Состояние для открытия/закрытия списка семестров
     var showAddDialog by remember { mutableStateOf(false) }
+    var isFabExpanded by remember { mutableStateOf(false) }
+    var showAddFolderDialog by remember { mutableStateOf(false )}
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -223,12 +232,54 @@ fun FilesListScreen(
 
             }
         }
-        FloatingActionButton(
-            onClick = { showAddDialog = true },
-            modifier = Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = 16.dp)
-        ){
-            Icon(painter = painterResource(R.drawable.download),
-                contentDescription = "Добавить")
+        Column(
+            horizontalAlignment = Alignment.End,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 16.dp, bottom = 16.dp)
+        ) {
+            AnimatedVisibility(isFabExpanded) {
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                ) {
+                    ExtendedFloatingActionButton(
+                        onClick = {
+                            showAddFolderDialog = true
+                            isFabExpanded = false
+                                  },
+                        icon = {
+                            Icon(painter = painterResource(R.drawable.folderadd),
+                                contentDescription = "Создать папку")
+                        },
+                        text = { Text("Создать папку") },
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    ExtendedFloatingActionButton(
+                        onClick = {
+                            showAddDialog = true
+                            isFabExpanded = false
+                        },
+                        icon = {
+                            Icon(
+                                painter = painterResource(R.drawable.download),
+                                contentDescription = "Загрузить файл")
+
+                        },
+                        text = { Text("Загрузить файл") },
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+            }
+            FloatingActionButton(
+                onClick = { isFabExpanded = !isFabExpanded }
+            ){
+                Icon(
+                    imageVector = if (isFabExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.Add,
+                    contentDescription = "Действия"
+
+                )
+            }
         }
         if (showAddDialog){
             val allFolders = filesFolders.map {it.name}
@@ -240,6 +291,14 @@ fun FilesListScreen(
                 onUploadClick = { fileName, category, folderId ->
                     onAddFileClick(fileName, category, folderId)
                     showAddDialog = false
+                }
+            )
+        }
+        if(showAddFolderDialog){
+            CustomFolderDialog(
+                onDismiss = { showAddFolderDialog = false },
+                onCreateClick = { folderName ->
+                    onAddFolderClick(folderName)
                 }
             )
         }
@@ -255,6 +314,6 @@ fun GreetingPreview() {
         FilesListScreen(listOf(FileFolderItem(1,"Математический анализ", 12, 1),
             FileFolderItem(2,"Дискретная математика", 12, 2),
             FileFolderItem(3,"Линейная алгебра", 16, 12),
-            FileFolderItem(4,"ООП", 32, 3),), onFolderClick = {}, searchQuery = "", selectedSemester = 1, onSemesterChange = {}, onSearchQueryChange = {}, onAddFileClick = { s,d,f ->})
+            FileFolderItem(4,"ООП", 32, 3),), onFolderClick = {}, searchQuery = "", selectedSemester = 1, onSemesterChange = {}, onSearchQueryChange = {}, onAddFileClick = { s,d,f ->}, {s ->})
     }
 }
