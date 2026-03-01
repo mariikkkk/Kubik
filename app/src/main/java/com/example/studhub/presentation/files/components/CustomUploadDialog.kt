@@ -40,16 +40,20 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.studhub.domain.models.FileCategory
+import com.example.studhub.domain.models.FileFolderItem
+import com.example.studhub.presentation.theme.StudHubTheme
 
 fun Modifier.dashedBorder(color: Color, cornerRadius: Dp) = composed {
     val density = LocalDensity.current
@@ -73,16 +77,18 @@ fun Modifier.dashedBorder(color: Color, cornerRadius: Dp) = composed {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomUploadDialog(
-    folderName: String,
-    folders: List<String>,
+    folders: List<FileFolderItem>,
+    initialFolderId: Int?,
     onDismiss: () -> Unit,
-    onUploadClick: (String, FileCategory, String) -> Unit
+    onUploadClick: (String, FileCategory, Int) -> Unit
 ){
     var fileName by remember { mutableStateOf("") }
     var selectedCategory by remember {mutableStateOf(FileCategory.OTHER)}
     var expandedCategoryMenu by remember { mutableStateOf(false) }
     var expandedFolderMenu by remember { mutableStateOf(false) }
-    var selectedFolder by remember { mutableStateOf(folderName) }
+    var selectedFolder by remember { mutableStateOf(folders.find {
+        it.id == (initialFolderId ?: folders.firstOrNull())
+    }) }
 
     Dialog(onDismissRequest = onDismiss){
         Surface(
@@ -130,6 +136,10 @@ fun CustomUploadDialog(
                                 RoundedCornerShape(12.dp)
                             ),
                         singleLine = true,
+                        textStyle = MaterialTheme.typography.bodyMedium.copy(
+                            color = MaterialTheme.colorScheme.onSurface
+                        ),
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
                         decorationBox = { innerTextField ->
                             Box(
                                 modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
@@ -155,13 +165,15 @@ fun CustomUploadDialog(
                 DialogRow(label="Предмет"){
                     Box{
                         BasicTextField(
-                            value = selectedFolder,
+                            value = selectedFolder?.name ?: "",
                             onValueChange = {},
                             modifier = Modifier.fillMaxWidth()
                                 .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
                                 .height(32.dp)
                                 .padding(end = 12.dp),
-                            textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onBackground),
                             readOnly = false,
                             singleLine = true,
                             decorationBox = { innerTextField ->
@@ -208,7 +220,7 @@ fun CustomUploadDialog(
                                 ) {
                                     folders.forEach { folderItem ->
                                         DropdownMenuItem(
-                                            text = { Text(folderItem) },
+                                            text = { Text(folderItem.name) },
                                             onClick = {
                                                 selectedFolder = folderItem
                                                 expandedFolderMenu = false
@@ -233,7 +245,9 @@ fun CustomUploadDialog(
                                     MaterialTheme.colorScheme.surfaceVariant,
                                     RoundedCornerShape(12.dp))
                                 .height(32.dp),
-                            textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onBackground),
                             decorationBox = { innerTextField ->
                                 Box(modifier = Modifier.fillMaxWidth(),
                                     contentAlignment = Alignment.Center){
@@ -264,7 +278,7 @@ fun CustomUploadDialog(
                         DropdownMenu(
                             expanded = expandedCategoryMenu,
                             onDismissRequest = { expandedCategoryMenu = false },
-                            modifier = Modifier.background(Color.White)
+                            modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                         ) {
                             FileCategory.entries.filter { it != FileCategory.ALL }.forEach { category ->
                                 DropdownMenuItem(
@@ -301,7 +315,7 @@ fun CustomUploadDialog(
                 Button(
                     onClick = {
                         if(fileName.isNotBlank()){
-                            onUploadClick(fileName, selectedCategory, selectedFolder)
+                            onUploadClick(fileName, selectedCategory, selectedFolder!!.id)
                         }
                     },
                     modifier = Modifier
@@ -336,5 +350,13 @@ fun DialogRow(label: String, content: @Composable () -> Unit){
         ){
             content()
         }
+    }
+}
+
+@Preview
+@Composable
+fun DialogPreview(){
+    StudHubTheme() {
+        CustomUploadDialog( listOf(FileFolderItem(1, "Математический анализ", 0, 1)),1,{}, { String, FileCategory, folder ->})
     }
 }

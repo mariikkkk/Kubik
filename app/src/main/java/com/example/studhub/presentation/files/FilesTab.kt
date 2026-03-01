@@ -15,7 +15,8 @@ import com.example.studhub.domain.models.FileType
 fun FilesTab(viewModel: FilesViewModel = viewModel()){
     var selectedFolder by remember { mutableStateOf<Int?>(null) }
     if (selectedFolder == null){
-        FilesListScreen(viewModel.folderList,
+        FilesListScreen(
+            viewModel.folderList,
             onFolderClick = { selectedFolderId ->
                     selectedFolder = selectedFolderId
             },
@@ -23,17 +24,20 @@ fun FilesTab(viewModel: FilesViewModel = viewModel()){
             selectedSemester = viewModel.selectedSemester,
             onSemesterChange = {semester -> viewModel.updateSelectedSemester(semester)},
             onSearchQueryChange = {query -> viewModel.updateSearchQuery(query)},
-            onAddFileClick = {fileName, category, targetFolder ->
-                viewModel.addFileByFolderName(targetFolder, fileName, category)
+            onAddFileClick = {fileName, category, targetFolderId ->
+                viewModel.addFile(targetFolderId, fileName, category)
             })
     }
     else{
         val folderName = viewModel.folderList.find { it.id == selectedFolder }?.name ?: "Ошибка"
 
         val filesForThisFolder = viewModel.folderFiles.filter { it.folderId == selectedFolder }
-        FileDetailsScreen(folderName,
+        FileDetailsScreen(
+            selectedFolder!!,
+            folderName,
             filesForThisFolder,
-                { selectedFolder = null}, {fileName, category ->
+                { selectedFolder = null},
+            {fileName, category ->
                     viewModel.addFile(selectedFolder!!, fileName, category)
             },
             {fileId -> viewModel.deleteFile(fileId)})
