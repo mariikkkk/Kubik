@@ -26,7 +26,11 @@ fun FilesTab(viewModel: FilesViewModel = viewModel()){
             onSearchQueryChange = {query -> viewModel.updateSearchQuery(query)},
             onAddFileClick = {fileName, category, targetFolderId ->
                 viewModel.addFile(targetFolderId, fileName, category)
-            })
+            },
+            onAddFolderClick = {folderName ->
+                viewModel.addFolder(folderName)
+            }
+        )
     }
     else{
         val folderName = viewModel.folderList.find { it.id == selectedFolder }?.name ?: "Ошибка"

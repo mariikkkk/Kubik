@@ -75,5 +75,9 @@ class FilesViewModel: ViewModel() {
     fun deleteFile(fileId: Int){
         folderFiles.removeIf { it.id == fileId }
     }
+
+    fun addFolder(folderName: String) {
+
+    }
 }
 
