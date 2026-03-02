@@ -31,4 +31,24 @@ class FirebaseFilesRepositoryImpl(
 
         }
     }
+
+    override suspend fun addFolder(name: String, semester: Int, newId: Int) {
+        val newFolderMap = hashMapOf(
+            "id" to newId,
+            "name" to name,
+            "countFiles" to 0,
+            "semester" to semester
+        )
+        firestore.collection("folders").add(newFolderMap)
+    }
+
+    override suspend fun deleteFolder(folderId: Int) {
+        firestore.collection("folders").whereEqualTo("id", folderId).get()
+            .addOnSuccessListener { documents ->
+                for (document in documents){
+                    document.reference.delete()
+                }
+            }
+
+    }
 }

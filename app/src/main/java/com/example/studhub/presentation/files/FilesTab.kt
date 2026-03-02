@@ -29,6 +29,9 @@ fun FilesTab(viewModel: FilesViewModel = viewModel()){
             },
             onAddFolderClick = {folderName ->
                 viewModel.addFolder(folderName)
+            },
+            onDeleteFolderSwipe = { folderId ->
+                viewModel.deleteFolder(folderId)
             }
         )
     }

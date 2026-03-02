@@ -77,7 +77,15 @@ class FilesViewModel: ViewModel() {
     }
 
     fun addFolder(folderName: String) {
-
+        val newId = (_firebaseFolders.maxOfOrNull { it.id } ?: 0) + 1
+        viewModelScope.launch {
+            repository.addFolder(folderName, selectedSemester, newId)
+        }
+    }
+    fun deleteFolder(folderId: Int){
+        viewModelScope.launch {
+            repository.deleteFolder(folderId)
+        }
     }
 }
 
