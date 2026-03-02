@@ -5,4 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface FilesRepository{
     fun getFolders(): Flow<List<FileFolderItem>>
+    suspend fun addFolder(name: String, semester: Int, newId: Int)
+    suspend fun deleteFolder(folderId: Int)
 }

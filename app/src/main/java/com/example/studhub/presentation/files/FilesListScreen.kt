@@ -1,6 +1,7 @@
 package com.example.studhub.presentation.files
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -35,9 +37,14 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -50,9 +57,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.SwipeToDismissValue
 import com.example.studhub.R
 import com.example.studhub.domain.models.FileCategory
 import com.example.studhub.domain.models.FileFolderItem
+import com.example.studhub.presentation.files.components.CustomDeleteDialog
 import com.example.studhub.presentation.files.components.CustomFolderDialog
 import com.example.studhub.presentation.files.components.CustomUploadDialog
 import com.example.studhub.presentation.theme.StudHubTheme
@@ -66,12 +75,14 @@ fun FilesListScreen(
     onSemesterChange: (Int) -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onAddFileClick: (String, FileCategory, Int) -> Unit,
-    onAddFolderClick: (String) -> Unit
+    onAddFolderClick: (String) -> Unit,
+    onDeleteFolderSwipe: (Int) -> Unit
 ) {
     var expaneded by remember { mutableStateOf(false) } // Состояние для открытия/закрытия списка семестров
     var showAddDialog by remember { mutableStateOf(false) }
     var isFabExpanded by remember { mutableStateOf(false) }
     var showAddFolderDialog by remember { mutableStateOf(false )}
+    var folderIdToDelete by remember { mutableStateOf<Int?>(null) }
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -191,45 +202,88 @@ fun FilesListScreen(
             Spacer(modifier = Modifier.height(16.dp))
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(filesFolders, key = { it.id }) { item ->
-
-                    Card(
-                        modifier = Modifier.fillMaxWidth().clickable { onFolderClick(item.id) },
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-
-                        ) {
-                        Row(
-                            modifier = Modifier.padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.folder_rec),
-                                contentDescription = "folder",
-                                modifier = Modifier.size(52.dp)
-
-                            )
-                            Spacer(Modifier.width(10.dp))
-                            Column() {
-                                Text(
-                                    item.name,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onBackground
-                                )
-                                Text(
-                                    "${item.countFiles} файлов",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onBackground
-                                )
+                        val dismissState = rememberSwipeToDismissBoxState(
+                            positionalThreshold = { totalDistance -> totalDistance * 0.3f},
+                            confirmValueChange = { dismissValue ->
+                                when(dismissValue){
+                                    SwipeToDismissBoxValue.EndToStart -> {
+                                        folderIdToDelete = item.id
+                                        false
+                                    }
+                                    SwipeToDismissBoxValue.Settled -> {
+                                        false
+                                    }
+                                    SwipeToDismissBoxValue.StartToEnd -> {
+                                        false
+                                    }
+                                }
                             }
-                            Spacer(Modifier.weight(1f))
-                            Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Открыть")
+                        )
+
+                        SwipeToDismissBox(
+                            state = dismissState,
+                            enableDismissFromStartToEnd = false,
+                            backgroundContent = {
+                                val color by animateColorAsState(
+                                    targetValue = if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart)
+                                        MaterialTheme.colorScheme.errorContainer
+                                    else
+                                        MaterialTheme.colorScheme.surfaceVariant
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(color)
+                                        .padding(end = 20.dp),
+                                    contentAlignment = Alignment.CenterEnd
+                                ){
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = "Удалить папку",
+                                        tint = MaterialTheme.colorScheme.onErrorContainer
+                                    )
+                                }
+                            },
+                            content = {
+                                Card(
+                                    modifier = Modifier.fillMaxWidth().clickable { onFolderClick(item.id) },
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+
+                                    ) {
+                                    Row(
+                                        modifier = Modifier.padding(16.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Image(
+                                            painter = painterResource(id = R.drawable.folder_rec),
+                                            contentDescription = "folder",
+                                            modifier = Modifier.size(52.dp)
+
+                                        )
+                                        Spacer(Modifier.width(10.dp))
+                                        Column() {
+                                            Text(
+                                                item.name,
+                                                style = MaterialTheme.typography.titleMedium,
+                                                color = MaterialTheme.colorScheme.onBackground
+                                            )
+                                            Text(
+                                                "${item.countFiles} файлов",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = MaterialTheme.colorScheme.onBackground
+                                            )
+                                        }
+                                        Spacer(Modifier.weight(1f))
+                                        Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Открыть")
 
 
-                        }
-
-                    }
+                                    }
+                                }
+                            }
+                        )
                 }
-
             }
         }
         Column(
@@ -299,12 +353,20 @@ fun FilesListScreen(
                 onDismiss = { showAddFolderDialog = false },
                 onCreateClick = { folderName ->
                     onAddFolderClick(folderName)
+                    showAddFolderDialog = false
+                }
+            )
+        }
+        if (folderIdToDelete != null){
+            CustomDeleteDialog(
+                onDismiss = { folderIdToDelete = null },
+                onConfirm = {
+                    onDeleteFolderSwipe(folderIdToDelete!!)
+                    folderIdToDelete = null
                 }
             )
         }
     }
-
-
 }
 
 @Preview(showBackground = true)
@@ -314,6 +376,6 @@ fun GreetingPreview() {
         FilesListScreen(listOf(FileFolderItem(1,"Математический анализ", 12, 1),
             FileFolderItem(2,"Дискретная математика", 12, 2),
             FileFolderItem(3,"Линейная алгебра", 16, 12),
-            FileFolderItem(4,"ООП", 32, 3),), onFolderClick = {}, searchQuery = "", selectedSemester = 1, onSemesterChange = {}, onSearchQueryChange = {}, onAddFileClick = { s,d,f ->}, {s ->})
+            FileFolderItem(4,"ООП", 32, 3),), onFolderClick = {}, searchQuery = "", selectedSemester = 1, onSemesterChange = {}, onSearchQueryChange = {}, onAddFileClick = { s,d,f ->}, {s ->}, {i ->})
     }
 }
