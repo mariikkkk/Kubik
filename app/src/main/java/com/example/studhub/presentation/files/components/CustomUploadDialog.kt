@@ -1,8 +1,14 @@
 package com.example.studhub.presentation.files.components
 
 import android.annotation.SuppressLint
+import android.content.ContentResolver
+import android.net.Uri
+import android.provider.OpenableColumns
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -80,7 +87,7 @@ fun CustomUploadDialog(
     folders: List<FileFolderItem>,
     initialFolderId: Int?,
     onDismiss: () -> Unit,
-    onUploadClick: (String, FileCategory, Int) -> Unit
+    onUploadClick: (String, FileCategory, Int, Uri) -> Unit
 ){
     var fileName by remember { mutableStateOf("") }
     var selectedCategory by remember {mutableStateOf(FileCategory.OTHER)}
@@ -89,6 +96,25 @@ fun CustomUploadDialog(
     var selectedFolder by remember { mutableStateOf(folders.find {
         it.id == (initialFolderId ?: folders.firstOrNull())
     }) }
+    val context = LocalContext.current // пропуск к системным функциям приложения
+    // Переменная для хранения ссылки на выбранный файл с устройства
+    var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
+    val filePickerLaunher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        selectedFileUri = uri
+
+        if (uri != null) {
+            context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if (cursor.moveToFirst() && nameIndex >= 0){
+                    val retrivedName = cursor.getString(nameIndex)
+                    fileName = retrivedName
+                }
+            }
+        }
+    }
+
 
     Dialog(onDismissRequest = onDismiss){
         Surface(
@@ -174,7 +200,7 @@ fun CustomUploadDialog(
                             textStyle = MaterialTheme.typography.bodyMedium.copy(
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onBackground),
-                            readOnly = false,
+                            readOnly = true,
                             singleLine = true,
                             decorationBox = { innerTextField ->
                                 Box(
@@ -248,6 +274,7 @@ fun CustomUploadDialog(
                             textStyle = MaterialTheme.typography.bodyMedium.copy(
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onBackground),
+                            readOnly = true,
                             decorationBox = { innerTextField ->
                                 Box(modifier = Modifier.fillMaxWidth(),
                                     contentAlignment = Alignment.Center){
@@ -299,10 +326,12 @@ fun CustomUploadDialog(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(60.dp)
-                            .dashedBorder(color = Color.LightGray, cornerRadius = 12.dp),
+                            .dashedBorder(color = Color.LightGray, cornerRadius = 12.dp)
+                            .clickable{ filePickerLaunher.launch("*/*")},
                         contentAlignment = Alignment.Center
                     ){
-                        Text("Нажмите, чтобы выбрать файл",
+                        Text(
+                            text = "Нажмите, чтобы выбрать файл",
                             color = Color.Gray,
                             fontSize = 12.sp,
                             textAlign = TextAlign.Center,
@@ -314,8 +343,8 @@ fun CustomUploadDialog(
 
                 Button(
                     onClick = {
-                        if(fileName.isNotBlank()){
-                            onUploadClick(fileName, selectedCategory, selectedFolder!!.id)
+                        if(fileName.isNotBlank() && selectedFolder != null && selectedFileUri != null){
+                            onUploadClick(fileName, selectedCategory, selectedFolder!!.id, selectedFileUri!!)
                         }
                     },
                     modifier = Modifier
@@ -324,7 +353,8 @@ fun CustomUploadDialog(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
-                    )
+                    ),
+                    enabled = fileName.isNotBlank() && selectedFolder != null && selectedFileUri != null
                 ){
                     Text("Загрузить", color = Color.White, fontWeight = FontWeight.Bold)
                 }
@@ -357,6 +387,6 @@ fun DialogRow(label: String, content: @Composable () -> Unit){
 @Composable
 fun DialogPreview(){
     StudHubTheme() {
-        CustomUploadDialog( listOf(FileFolderItem(1, "Математический анализ", 0, 1)),1,{}, { String, FileCategory, folder ->})
+        CustomUploadDialog( listOf(FileFolderItem(1, "Математический анализ", 0, 1)),1,{}, { String, FileCategory, folder, uri ->})
     }
 }

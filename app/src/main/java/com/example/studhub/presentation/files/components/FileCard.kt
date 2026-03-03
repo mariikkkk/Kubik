@@ -66,6 +66,7 @@ fun FileCard(
         FileType.ZIP -> R.drawable.archive
     }
     var expanded by remember { mutableStateOf(false) }
+    var fileIdToDelete by remember { mutableStateOf<Int?>(null) }
 
     Card(
         modifier = modifier
@@ -167,7 +168,7 @@ fun FileCard(
                         text = {Text("Удалить")},
                         onClick = {
                             expanded = false
-                            onDeleteClick()
+                            fileIdToDelete = file.id
                         },
                         leadingIcon = {
                             Icon(
@@ -180,6 +181,12 @@ fun FileCard(
             }
 
         }
+    }
+    if(fileIdToDelete != null){
+        CustomDeleteDialog(
+            { fileIdToDelete = null },
+            { onDeleteClick() }
+        )
     }
 }
 

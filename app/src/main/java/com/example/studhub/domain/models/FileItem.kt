@@ -21,6 +21,7 @@ data class FileItem(
     val type: FileType,
     val date: String,
     val author: String,
-    val category: FileCategory
+    val category: FileCategory,
+    val fileUrl: String = ""
 )
 

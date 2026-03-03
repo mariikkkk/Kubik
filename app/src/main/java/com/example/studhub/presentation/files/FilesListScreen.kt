@@ -1,5 +1,6 @@
 package com.example.studhub.presentation.files
 
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.BorderStroke
@@ -27,7 +28,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -42,22 +42,18 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.SwipeToDismissValue
 import com.example.studhub.R
 import com.example.studhub.domain.models.FileCategory
 import com.example.studhub.domain.models.FileFolderItem
@@ -74,7 +70,7 @@ fun FilesListScreen(
     selectedSemester: Int,
     onSemesterChange: (Int) -> Unit,
     onSearchQueryChange: (String) -> Unit,
-    onAddFileClick: (String, FileCategory, Int) -> Unit,
+    onAddFileClick: (String, FileCategory, Int, Uri ) -> Unit,
     onAddFolderClick: (String) -> Unit,
     onDeleteFolderSwipe: (Int) -> Unit
 ) {
@@ -342,8 +338,8 @@ fun FilesListScreen(
                 filesFolders,
                 filesFolders.firstOrNull()!!.id,
                 onDismiss = { showAddDialog = false },
-                onUploadClick = { fileName, category, folderId ->
-                    onAddFileClick(fileName, category, folderId)
+                onUploadClick = { fileName, category, folderId, uri ->
+                    onAddFileClick(fileName, category, folderId, uri)
                     showAddDialog = false
                 }
             )
@@ -376,6 +372,6 @@ fun GreetingPreview() {
         FilesListScreen(listOf(FileFolderItem(1,"Математический анализ", 12, 1),
             FileFolderItem(2,"Дискретная математика", 12, 2),
             FileFolderItem(3,"Линейная алгебра", 16, 12),
-            FileFolderItem(4,"ООП", 32, 3),), onFolderClick = {}, searchQuery = "", selectedSemester = 1, onSemesterChange = {}, onSearchQueryChange = {}, onAddFileClick = { s,d,f ->}, {s ->}, {i ->})
+            FileFolderItem(4,"ООП", 32, 3),), onFolderClick = {}, searchQuery = "", selectedSemester = 1, onSemesterChange = {}, onSearchQueryChange = {}, onAddFileClick = { s,d,f, u ->}, {s ->}, {i ->})
     }
 }
