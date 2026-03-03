@@ -14,6 +14,9 @@ material3 = "1.4.0"
 googleGmsGoogleServices = "4.4.4"
 firebaseFirestore = "26.1.1"
 composeFoundation = "1.5.6"
+firebaseStorage = "21.0.1"
+firebaseBom = "33.9.0"
+amazonAwsSdk = "2.73.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -35,6 +38,9 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 androidx-compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "composeFoundation" }
+firebase-storage = { group = "com.google.firebase", name = "firebase-storage", version.ref = "firebaseStorage" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+amazon-aws-sdk-android = { group = "com.amazonaws", name = "aws-android-sdk-s3", version.ref = "amazonAwsSdk"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

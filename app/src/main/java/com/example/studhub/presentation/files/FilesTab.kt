@@ -1,31 +1,31 @@
 package com.example.studhub.presentation.files
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.studhub.domain.models.FileCategory
-import com.example.studhub.domain.models.FileItem
-import com.example.studhub.domain.models.FileType
 
 @Composable
 fun FilesTab(viewModel: FilesViewModel = viewModel()){
     var selectedFolder by remember { mutableStateOf<Int?>(null) }
+
     if (selectedFolder == null){
         FilesListScreen(
             viewModel.folderList,
             onFolderClick = { selectedFolderId ->
                     selectedFolder = selectedFolderId
+                    viewModel.loadFilesForFolder(selectedFolderId)
             },
             searchQuery = viewModel.searchQuery,
             selectedSemester = viewModel.selectedSemester,
             onSemesterChange = {semester -> viewModel.updateSelectedSemester(semester)},
             onSearchQueryChange = {query -> viewModel.updateSearchQuery(query)},
-            onAddFileClick = {fileName, category, targetFolderId ->
-                viewModel.addFile(targetFolderId, fileName, category)
+            onAddFileClick = {fileName, category, targetFolderId, fileUri ->
+                viewModel.addFile(fileName, category, folderId = targetFolderId, fileUri)
             },
             onAddFolderClick = {folderName ->
                 viewModel.addFolder(folderName)
@@ -37,15 +37,14 @@ fun FilesTab(viewModel: FilesViewModel = viewModel()){
     }
     else{
         val folderName = viewModel.folderList.find { it.id == selectedFolder }?.name ?: "Ошибка"
-
-        val filesForThisFolder = viewModel.folderFiles.filter { it.folderId == selectedFolder }
+        val filesForThisFolder by viewModel.firebaseFiles.collectAsState()
         FileDetailsScreen(
             selectedFolder!!,
             folderName,
             filesForThisFolder,
                 { selectedFolder = null},
-            {fileName, category ->
-                    viewModel.addFile(selectedFolder!!, fileName, category)
+            {fileName, category, fileUri ->
+                    viewModel.addFile(fileName, category, selectedFolder!!, fileUri)
             },
             {fileId -> viewModel.deleteFile(fileId)})
     }
