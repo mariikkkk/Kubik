@@ -1,7 +1,7 @@
 package com.example.studhub.presentation.files
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -12,7 +12,13 @@ import com.example.studhub.domain.models.FileFolderItem
 import com.example.studhub.domain.models.FileItem
 import com.example.studhub.domain.models.FileType
 import com.example.studhub.domain.repository.FilesRepository
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class FilesViewModel: ViewModel() {
 
@@ -26,15 +32,37 @@ class FilesViewModel: ViewModel() {
         }
     }
 
+    private val _firebaseFiles = MutableStateFlow<List<FileItem>>(emptyList())
+    val firebaseFiles: StateFlow<List<FileItem>> = _firebaseFiles.asStateFlow()
 
-    val folderFiles = mutableStateListOf(
-        FileItem(1, 1,"Лекция №1", "2.5 MB", FileType.PDF, "01.02.2024", "Иванов И.И.", FileCategory.LECTURES),
-        FileItem(2, 3,"Лекция №2", "1.5 MB", FileType.PDF, "02.02.2024", "Петров П.П.", FileCategory.LECTURES),
-        FileItem(3, 1,"ТРПП Практика №1", "1000 MB", FileType.DOCX, "03.12.2026", "Куликов А", FileCategory.PRACTICE),
-        FileItem(4, 1,"Скриншот ошибки", "1000 MB", FileType.JPEG, "03.12.2026", "Куликов А", FileCategory.OTHER),
-        FileItem(5, 4,"ООП Лекция №1", "1000 MB", FileType.PPTX, "03.12.2026", "Куликов А", FileCategory.LECTURES)
+    private var fileJob: Job? = null
 
-    )
+    fun loadFilesForFolder(folderId: Int){
+        fileJob?.cancel()
+        fileJob = viewModelScope.launch {
+            repository.getFiles(folderId).collect { filesFromDb ->
+                _firebaseFiles.value = filesFromDb
+            }
+        }
+    }
+
+    fun addFile(fileName: String, category: FileCategory, folderId: Int, fileUri: Uri) {
+        viewModelScope.launch {
+            val newId = (_firebaseFiles.value.maxOfOrNull { it.id } ?: 0) + 1
+            val newFile = FileItem(
+                newId,
+                folderId,
+                fileName,
+                "? MB",
+                FileType.PDF,
+                LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                "Студент",
+                category,
+                fileUrl = ""
+            )
+            repository.addFile(newFile, fileUri)
+        }
+    }
 
     var searchQuery by mutableStateOf("")
     private set
@@ -55,25 +83,10 @@ class FilesViewModel: ViewModel() {
         selectedSemester = semester
     }
 
-    fun addFile(folderId: Int, fileName: String, category: FileCategory){
-        val newId = (folderFiles.maxOfOrNull { it.id } ?: 0) + 1
-
-        val newFile = FileItem(
-            newId,
-            folderId,
-            fileName,
-            "6.7 MB",
-            FileType.PDF,
-            "26.02.2026",
-            "Котельников",
-            category
-        )
-
-        folderFiles.add(newFile)
-    }
-
     fun deleteFile(fileId: Int){
-        folderFiles.removeIf { it.id == fileId }
+        viewModelScope.launch {
+            repository.deleteFile(fileId)
+        }
     }
 
     fun addFolder(folderName: String) {
