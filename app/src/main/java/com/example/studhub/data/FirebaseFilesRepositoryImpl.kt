@@ -1,16 +1,26 @@
 package com.example.studhub.data
 
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.net.Uri
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.services.s3.AmazonS3Client
+import com.amazonaws.services.s3.model.PutObjectRequest
 import com.example.studhub.domain.models.FileFolderItem
 import com.example.studhub.domain.models.FileItem
 import com.example.studhub.domain.repository.FilesRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.lang.Exception
 
 class FirebaseFilesRepositoryImpl(
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
@@ -79,13 +89,29 @@ class FirebaseFilesRepositoryImpl(
 
 
 
-    override suspend fun addFile(file: FileItem, fileUri: Uri) {
-        try {
-            val fileNameInStorage = "${System.currentTimeMillis()}_${file.name}"
-            val storageRef = storage.reference.child("files/${file.folderId}/$fileNameInStorage")
-            storageRef.putFile(fileUri).await()
-            val downloadUrl = storageRef.downloadUrl.await().toString()
-            val newFileMap = hashMapOf(
+    @SuppressLint("Recycle")
+    override suspend fun addFile(context: Context, file: FileItem, fileUri: Uri) {
+        withContext(Dispatchers.IO){                                                                // Переносим всю работу с главного потока в фоновый (передача заказа повару)
+            try{
+                val accessKey = "I2GQS912HUOK6CP6O5LG"
+                val secretKey = "HEPEowHtrZCiUKcpYfz6neZDfcoGojHKdomjTijp"
+                val bucketName = "795ec9d1-a8dc-4c2f-9c69-33e40f61f256"
+                val credentials = BasicAWSCredentials(accessKey, secretKey)                                 // Паспорт из ключей
+                val s3client = AmazonS3Client(credentials)                                  // передача паспорта клиенту
+                s3client.setEndpoint("https://s3.twcstorage.ru")                                            // работаем с таймвеб
+
+                val tmpFile = File.createTempFile("tmp", null, context.cacheDir)  // временный пустой файл, так как андроид дает только Uri
+                val inputStream = context.contentResolver.openInputStream(fileUri)                          // открываем поток для чтения (подключился к оригинальному файлу)
+                val outputStream = FileOutputStream(tmpFile)                                                // открываем поток для записи (подключился к пустышке)
+                inputStream?.copyTo(outputStream)                                                           // закачали пустышку байтами ориги
+                inputStream?.close()                                                                        // закрываем поток чтения (кран)
+                outputStream.close()                                                                        // закрываем поток записи (кран)
+
+                val objectKey = "files/${file.folderId}/${System.currentTimeMillis()}_${file.name}"         // придумываем уникальный путь внутри бакета (files/1/170348534_Файл.pdf) для уникальности файлов
+                val putRequest = PutObjectRequest(bucketName, objectKey, tmpFile)                           // собираем запрос (кладем файл, адрес)
+                s3client.putObject(putRequest)                                            // отправляем файл на сервер
+                val downloadUrl = "https://s3.twcstorage.ru/$bucketName/$objectKey"                         // получаем ссылку
+                val newFileMap = hashMapOf(
                 "id" to file.id,
                 "folderId" to file.folderId,
                 "name" to file.name,
@@ -94,11 +120,15 @@ class FirebaseFilesRepositoryImpl(
                 "date" to file.date,
                 "author" to file.author,
                 "category" to file.category.name,
-                "fileUri" to downloadUrl
+                "fileUrl" to downloadUrl
             )
-            firestore.collection("files").add(newFileMap)
-        }catch (e: Exception){
-            e.printStackTrace()
+                firestore.collection("files").add(newFileMap).await()
+                tmpFile.delete()
+
+
+            } catch (e : Exception){
+                e.printStackTrace()
+            }
         }
     }
 
