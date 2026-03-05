@@ -7,11 +7,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun FilesTab(viewModel: FilesViewModel = viewModel()){
     var selectedFolder by remember { mutableStateOf<Int?>(null) }
+    val context = LocalContext.current
+    val isUploading by viewModel.isUploading.collectAsState()                                        // collectAsState подписывает на поток (кран, через который течет поток данных)
 
     if (selectedFolder == null){
         FilesListScreen(
@@ -25,8 +28,9 @@ fun FilesTab(viewModel: FilesViewModel = viewModel()){
             onSemesterChange = {semester -> viewModel.updateSelectedSemester(semester)},
             onSearchQueryChange = {query -> viewModel.updateSearchQuery(query)},
             onAddFileClick = {fileName, category, targetFolderId, fileUri ->
-                viewModel.addFile(fileName, category, folderId = targetFolderId, fileUri)
+                viewModel.addFile(context, fileName, category, folderId = targetFolderId, fileUri)
             },
+            isUploading = isUploading,
             onAddFolderClick = {folderName ->
                 viewModel.addFolder(folderName)
             },
@@ -42,11 +46,18 @@ fun FilesTab(viewModel: FilesViewModel = viewModel()){
             selectedFolder!!,
             folderName,
             filesForThisFolder,
+            isUploading = isUploading,
                 { selectedFolder = null},
             {fileName, category, fileUri ->
-                    viewModel.addFile(fileName, category, selectedFolder!!, fileUri)
+                    viewModel.addFile(context,
+                        fileName, category, selectedFolder!!, fileUri)
             },
-            {fileId -> viewModel.deleteFile(fileId)})
+            {fileId -> viewModel.deleteFile(fileId)},
+        onDownloadFileClick = {fileUrl, fileName ->
+            viewModel.downloadFile(context, fileUrl, fileName)
+        }
+        )
+
     }
 
 }

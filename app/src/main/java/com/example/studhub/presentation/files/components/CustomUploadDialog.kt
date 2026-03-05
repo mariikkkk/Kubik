@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,6 +49,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -86,10 +88,10 @@ fun Modifier.dashedBorder(color: Color, cornerRadius: Dp) = composed {
 fun CustomUploadDialog(
     folders: List<FileFolderItem>,
     initialFolderId: Int?,
+    isUploading: Boolean = false,
     onDismiss: () -> Unit,
     onUploadClick: (String, FileCategory, Int, Uri) -> Unit
 ){
-    var fileName by remember { mutableStateOf("") }
     var selectedCategory by remember {mutableStateOf(FileCategory.OTHER)}
     var expandedCategoryMenu by remember { mutableStateOf(false) }
     var expandedFolderMenu by remember { mutableStateOf(false) }
@@ -99,6 +101,8 @@ fun CustomUploadDialog(
     val context = LocalContext.current // пропуск к системным функциям приложения
     // Переменная для хранения ссылки на выбранный файл с устройства
     var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
+    var fileNameWithoutExtension by remember { mutableStateOf("") }
+    var fileExtension by remember { mutableStateOf("") }
     val filePickerLaunher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -109,11 +113,14 @@ fun CustomUploadDialog(
                 val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
                 if (cursor.moveToFirst() && nameIndex >= 0){
                     val retrivedName = cursor.getString(nameIndex)
-                    fileName = retrivedName
+                    fileNameWithoutExtension = retrivedName.substringBeforeLast(".")
+                    fileExtension = if(retrivedName.contains(".") ) retrivedName.substringAfterLast(".") else ""
                 }
             }
         }
     }
+
+
 
 
     Dialog(onDismissRequest = onDismiss){
@@ -152,8 +159,8 @@ fun CustomUploadDialog(
                 Spacer(Modifier.height(24.dp))
                 DialogRow(label="Название"){
                     BasicTextField(
-                        value = fileName,
-                        onValueChange = {fileName = it},
+                        value = fileNameWithoutExtension,
+                        onValueChange = {fileNameWithoutExtension = it },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(32.dp)
@@ -167,21 +174,33 @@ fun CustomUploadDialog(
                         ),
                         cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
                         decorationBox = { innerTextField ->
-                            Box(
-                                modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
-                                contentAlignment = Alignment.CenterStart
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(horizontal = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ){
-                                if (fileName.isEmpty()){
-                                    Text("Например: Лекция №1.pdf",
-                                        color = Color.LightGray,
-                                        fontSize = 12.sp,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis
-                                    )
+                                Box(
+                                    modifier = Modifier
+                                        .weight(1f),
+                                    contentAlignment = Alignment.CenterStart
+                                ){
+                                    if (fileNameWithoutExtension.isEmpty() && fileExtension.isEmpty()){
+                                        Text("Например: Лекция №1.pdf",
+                                            color = Color.LightGray,
+                                            fontSize = 12.sp,
+                                            maxLines = 1,
+                                        )
+                                    }
+                                    innerTextField()
                                 }
-                                innerTextField()
+                                if(fileExtension.isNotEmpty())
+                                    Text(
+                                        text = ".$fileExtension",
+                                        color = Color.LightGray,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
                             }
-
 
                         }
 
@@ -343,8 +362,9 @@ fun CustomUploadDialog(
 
                 Button(
                     onClick = {
-                        if(fileName.isNotBlank() && selectedFolder != null && selectedFileUri != null){
-                            onUploadClick(fileName, selectedCategory, selectedFolder!!.id, selectedFileUri!!)
+                        if(fileNameWithoutExtension.isNotBlank() && selectedFolder != null && selectedFileUri != null){
+                            val finalName = if (fileExtension.isNotEmpty()) "$fileNameWithoutExtension.$fileExtension" else fileNameWithoutExtension
+                            onUploadClick(finalName, selectedCategory, selectedFolder!!.id, selectedFileUri!!)
                         }
                     },
                     modifier = Modifier
@@ -354,9 +374,18 @@ fun CustomUploadDialog(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
                     ),
-                    enabled = fileName.isNotBlank() && selectedFolder != null && selectedFileUri != null
+                    enabled = fileNameWithoutExtension.isNotBlank() && selectedFolder != null && selectedFileUri != null && !isUploading
                 ){
-                    Text("Загрузить", color = Color.White, fontWeight = FontWeight.Bold)
+                    if(isUploading){
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp
+                        )
+                    }
+                    else{
+                        Text("Загрузить", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
@@ -387,6 +416,6 @@ fun DialogRow(label: String, content: @Composable () -> Unit){
 @Composable
 fun DialogPreview(){
     StudHubTheme() {
-        CustomUploadDialog( listOf(FileFolderItem(1, "Математический анализ", 0, 1)),1,{}, { String, FileCategory, folder, uri ->})
+        CustomUploadDialog( listOf(FileFolderItem(1, "Математический анализ", 0, 1)),1, onDismiss = {}, onUploadClick = { String, FileCategory, folder, uri ->})
     }
 }

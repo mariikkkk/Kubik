@@ -1,5 +1,6 @@
 package com.example.studhub.domain.repository
 
+import android.content.Context
 import android.net.Uri
 import com.example.studhub.domain.models.FileFolderItem
 import com.example.studhub.domain.models.FileItem
@@ -12,6 +13,6 @@ interface FilesRepository{
     suspend fun deleteFolder(folderId: Int)
 
     fun getFiles(folderId: Int): Flow<List<FileItem>>
-    suspend fun addFile(file: FileItem, fileUri: Uri)
+    suspend fun addFile(context: Context, file: FileItem, fileUri: Uri)
     suspend fun deleteFile(fileId: Int)
 }
