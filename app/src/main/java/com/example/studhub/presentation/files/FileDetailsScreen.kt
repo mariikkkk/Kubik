@@ -32,6 +32,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,9 +58,11 @@ fun FileDetailsScreen(
     folderId: Int,
     folderName: String,
     files: List<FileItem>,
+    isUploading: Boolean = false,
     onBackClick: () -> Unit,
     onAddFileClick: (String, FileCategory, Uri) -> Unit,
-    onDeleteFileClick: (Int) -> Unit
+    onDeleteFileClick: (Int) -> Unit,
+    onDownloadFileClick: (String, String) -> Unit
 ){
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf(FileCategory.ALL) }
@@ -73,6 +76,18 @@ fun FileDetailsScreen(
         val matchesVategory = selectedCategory == FileCategory.ALL || file.category == selectedCategory
         matchesSearch && matchesVategory
     }
+
+    var wasUploading by remember { mutableStateOf(false) }
+    LaunchedEffect(isUploading) {
+        if(isUploading){
+            wasUploading = true
+        }
+        if(!isUploading && wasUploading){
+            wasUploading = false
+            showAddDialog = false
+        }
+    }
+
     Box(modifier = Modifier
         .fillMaxSize()
         .background(MaterialTheme.colorScheme.background)
@@ -192,7 +207,7 @@ fun FileDetailsScreen(
                 items(items = filteredFiles, key = { it.id }) { file ->
                     FileCard(
                         file = file,
-                        onDownloadClick = {},
+                        onDownloadClick = { onDownloadFileClick(file.fileUrl, file.name) },
                         onShareClick = {},
                         onDeleteClick = {
                             onDeleteFileClick(file.id)
@@ -217,11 +232,12 @@ fun FileDetailsScreen(
             CustomUploadDialog(
                 listOf(FileFolderItem(folderId, folderName, 0, 0)),
                 folderId,
+                isUploading = isUploading,
                 onDismiss = {showAddDialog = false},
                 onUploadClick = {
                 name, category, folder, uri ->
                     onAddFileClick(name, category, uri)
-                    showAddDialog = false
+                        //showAddDialog = false
             })
        }
     }

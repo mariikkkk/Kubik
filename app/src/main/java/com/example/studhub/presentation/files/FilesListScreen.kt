@@ -42,6 +42,7 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,6 +69,7 @@ fun FilesListScreen(
     onFolderClick: (Int) -> Unit,
     searchQuery: String,
     selectedSemester: Int,
+    isUploading: Boolean = false,
     onSemesterChange: (Int) -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onAddFileClick: (String, FileCategory, Int, Uri ) -> Unit,
@@ -79,6 +81,17 @@ fun FilesListScreen(
     var isFabExpanded by remember { mutableStateOf(false) }
     var showAddFolderDialog by remember { mutableStateOf(false )}
     var folderIdToDelete by remember { mutableStateOf<Int?>(null) }
+
+    var wasUploading by remember { mutableStateOf(false) }
+    LaunchedEffect(isUploading) {
+        if(isUploading){
+            wasUploading = true
+        }
+        if(!isUploading && wasUploading){
+            wasUploading = false
+            showAddDialog = false
+        }
+    }
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -337,10 +350,11 @@ fun FilesListScreen(
             CustomUploadDialog(
                 filesFolders,
                 filesFolders.firstOrNull()!!.id,
+                isUploading = isUploading,
                 onDismiss = { showAddDialog = false },
                 onUploadClick = { fileName, category, folderId, uri ->
                     onAddFileClick(fileName, category, folderId, uri)
-                    showAddDialog = false
+                    //showAddDialog = false
                 }
             )
         }
@@ -372,6 +386,6 @@ fun GreetingPreview() {
         FilesListScreen(listOf(FileFolderItem(1,"Математический анализ", 12, 1),
             FileFolderItem(2,"Дискретная математика", 12, 2),
             FileFolderItem(3,"Линейная алгебра", 16, 12),
-            FileFolderItem(4,"ООП", 32, 3),), onFolderClick = {}, searchQuery = "", selectedSemester = 1, onSemesterChange = {}, onSearchQueryChange = {}, onAddFileClick = { s,d,f, u ->}, {s ->}, {i ->})
+            FileFolderItem(4,"ООП", 32, 3),), onFolderClick = {}, searchQuery = "", selectedSemester = 1, onSemesterChange = {}, onSearchQueryChange = {}, onAddFileClick = { s,d,f, u ->}, onAddFolderClick =  {s ->}, onDeleteFolderSwipe =  {i ->})
     }
 }
