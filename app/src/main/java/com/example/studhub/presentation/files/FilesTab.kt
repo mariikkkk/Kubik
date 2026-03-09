@@ -53,9 +53,16 @@ fun FilesTab(viewModel: FilesViewModel = viewModel()){
                         fileName, category, selectedFolder!!, fileUri)
             },
             {fileId -> viewModel.deleteFile(fileId)},
-        onDownloadFileClick = {fileUrl, fileName ->
-            viewModel.downloadFile(context, fileUrl, fileName)
-        }
+            onDownloadFileClick = {fileUrl, fileName ->
+                viewModel.downloadFile(context, fileUrl, fileName)
+            },
+            onRenameFileClick = { fileId, newName ->
+                viewModel.deleteFile(fileId)
+            },
+            onShareFileClick = { fileUrl, fileName ->
+                viewModel.shareFile(context, fileUrl, fileName)
+            }
+
         )
 
     }

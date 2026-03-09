@@ -2,6 +2,7 @@ package com.example.studhub.presentation.files
 
 import android.app.DownloadManager
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.compose.runtime.getValue
@@ -59,13 +60,23 @@ class FilesViewModel: ViewModel() {
         viewModelScope.launch {
             _isUploading.value = true                                                                               // Включение индикатор загрузки
             try{
-                val newId = (_firebaseFiles.value.maxOfOrNull { it.id } ?: 0) + 1
+                val newId = (1..Int.MAX_VALUE).random()
+                val extension = fileName.substringAfterLast('.').lowercase()
+                val type = when(extension) {
+                    "pdf" -> FileType.PDF
+                    "doc", "docx" -> FileType.DOCX
+                    "txt" -> FileType.TXT
+                    "ppt", "pptx" -> FileType.PPTX
+                    "zip", "rar" -> FileType.ZIP
+                    "jpg", "jpeg" -> FileType.JPEG
+                    else -> FileType.PDF
+                }
                 val newFile = FileItem(
                     newId,
                     folderId,
                     fileName,
                     "? MB",
-                    FileType.PDF,
+                    type,
                     LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
                     "Студент",
                     category,
@@ -141,6 +152,20 @@ class FilesViewModel: ViewModel() {
         } catch (e: Exception){
             e.printStackTrace()
         }
+    }
+
+    fun shareFile(context: Context, url: String, fileName: String){
+        val lastPartUrlIndex = url.indexOfLast{it == '/'}
+        val lastPartUrl = url.substring(lastPartUrlIndex + 1)
+        val basePartUrl = url.take(lastPartUrlIndex + 1)
+        val encodedLastUrl = Uri.encode(lastPartUrl).toString()
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.type = "text/plain"
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Файл из StudHub")
+        intent.putExtra(Intent.EXTRA_TEXT, "Держи файл «$fileName» из StudHub\nСкачать можно по ссылке: ${basePartUrl + encodedLastUrl}")
+        val chooser = Intent.createChooser(intent, "Поделиться файлом")
+        context.startActivity(chooser)
+
     }
 }
 
