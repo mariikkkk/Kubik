@@ -62,7 +62,9 @@ fun FileDetailsScreen(
     onBackClick: () -> Unit,
     onAddFileClick: (String, FileCategory, Uri) -> Unit,
     onDeleteFileClick: (Int) -> Unit,
-    onDownloadFileClick: (String, String) -> Unit
+    onDownloadFileClick: (String, String) -> Unit,
+    onRenameFileClick: (Int, String) -> Unit,
+    onShareFileClick: (String, String) -> Unit
 ){
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf(FileCategory.ALL) }
@@ -208,7 +210,9 @@ fun FileDetailsScreen(
                     FileCard(
                         file = file,
                         onDownloadClick = { onDownloadFileClick(file.fileUrl, file.name) },
-                        onShareClick = {},
+                        onShareClick = {
+                            onShareFileClick(file.fileUrl, file.name)
+                        },
                         onDeleteClick = {
                             onDeleteFileClick(file.id)
                         },
