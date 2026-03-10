@@ -6,13 +6,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.studhub"
+    namespace = "com.example.kubik"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.example.studhub"
+        applicationId = "com.example.kubik"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
