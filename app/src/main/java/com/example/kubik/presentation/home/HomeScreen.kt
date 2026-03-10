@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kubik.presentation.files.FilesTab
 import com.example.kubik.presentation.navigation.NavigationItem
+import com.example.kubik.presentation.navigation.components.CustomBottomNavBar
 import com.example.kubik.presentation.queues.QueuesTab
 import com.example.kubik.presentation.theme.AppBrushes
 import com.example.kubik.presentation.theme.KubikTheme
@@ -42,13 +43,15 @@ fun HomeScreen(){
         NavigationItem.Requests,
         NavigationItem.Files
     )
+
     var selectedItem by remember { mutableStateOf(0) }
+    var currentRoute by remember { mutableStateOf(NavigationItem.Home.route) }
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                    text = "StudHub",
+                    text = "КУБИК",
                     style = MaterialTheme.typography.headlineLarge.copy(
                     brush = AppBrushes.titleGradient)
                     )
@@ -76,40 +79,47 @@ fun HomeScreen(){
             )
         },
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface,
-                tonalElevation = 8.dp
-            ) {
-                items.forEachIndexed { index, item ->
-                    NavigationBarItem(
-                    icon =
-                        {
-                        if (item.icon != null)
-                        {
-                            Icon(item.icon, contentDescription = item.title)
-                        }
-                        else if(item.iconId != null)
-                        {
-                            Icon(painter = painterResource(item.iconId), contentDescription = item.title)
-                        }
-                        },
-                    label = { Text(item.title, fontSize = 10.sp) },
-                    selected = selectedItem == index,
-                    onClick = { selectedItem = index },
-
-                    )
+            CustomBottomNavBar(
+                items,
+                currentRoute,
+                onItemClick = { newRoute ->
+                    currentRoute = newRoute
                 }
-            }
+            )
+//            NavigationBar(
+//                containerColor = MaterialTheme.colorScheme.surface,
+//                tonalElevation = 8.dp
+//            ) {
+//                items.forEachIndexed { index, item ->
+//                    NavigationBarItem(
+//                    icon =
+//                        {
+//                        if (item.icon != null)
+//                        {
+//                            Icon(item.icon, contentDescription = item.title)
+//                        }
+//                        else if(item.iconId != null)
+//                        {
+//                            Icon(painter = painterResource(item.iconId), contentDescription = item.title)
+//                        }
+//                        },
+//                    label = { Text(item.title, fontSize = 10.sp) },
+//                    selected = selectedItem == index,
+//                    onClick = { selectedItem = index },
+//
+//                    )
+//                }
+//            }
         }
     ) {
         innerPadding ->
         Box(modifier = Modifier.padding(innerPadding).fillMaxSize(), contentAlignment = Alignment.Center){
-            when(selectedItem) {
-                0 -> HomeTab()
-                1 -> QueuesTab()
-                2 -> CalendarTab()
-                3 -> RequestsTab()
-                4 -> FilesTab()
+            when(currentRoute) {
+                NavigationItem.Home.route -> HomeTab()
+                NavigationItem.Queues.route -> QueuesTab()
+                NavigationItem.Calendar.route -> CalendarTab()
+                NavigationItem.Requests.route -> RequestsTab()
+                NavigationItem.Files.route -> FilesTab()
             }
         }
     }
