@@ -3,18 +3,13 @@ package com.example.kubik.presentation.home
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,55 +21,32 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.example.kubik.presentation.files.FilesTab
 import com.example.kubik.presentation.navigation.NavigationItem
 import com.example.kubik.presentation.queues.QueuesTab
-import com.example.kubik.presentation.theme.AppBrushes
 import com.example.kubik.presentation.theme.KubikTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(){
     val items = listOf(
-        NavigationItem.Home,
-        NavigationItem.Queues,
         NavigationItem.Calendar,
+        NavigationItem.Queues,
+        NavigationItem.Home,
         NavigationItem.Requests,
         NavigationItem.Files
     )
-    var selectedItem by remember { mutableStateOf(0) }
+    val tabNavController = rememberNavController()
+    val navBackStackEntry by tabNavController.currentBackStackEntryAsState()    // Слушаем переключение экрана
+    val currentRoute = navBackStackEntry?.destination?.route // destination - узел в графе. Достаем название пути
+
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                    text = "StudHub",
-                    style = MaterialTheme.typography.headlineLarge.copy(
-                    brush = AppBrushes.titleGradient)
-                    )
-                },
-                actions = {
-                    IconButton(onClick = {  })
-                    {
-                        Surface(
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            modifier = Modifier.size(40.dp)
-                        ){
-                            Box(
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Text(
-                                    text = "ЦМ",
-                                    modifier = Modifier.padding(8.dp),
-                                    style = MaterialTheme.typography.labelMedium
-                                )
-                            }
-                        }
-                    }
-                }
-            )
-        },
         bottomBar = {
             NavigationBar(
                 containerColor = MaterialTheme.colorScheme.surface,
@@ -94,33 +66,46 @@ fun HomeScreen(){
                         }
                         },
                     label = { Text(item.title, fontSize = 10.sp) },
-                    selected = selectedItem == index,
-                    onClick = { selectedItem = index },
-
+                    selected = currentRoute == item.route,
+                    onClick = {
+                        tabNavController.navigate(item.route){
+                            // При переходе обрезаем стек до стартового экрана
+                            popUpTo(tabNavController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        } },
                     )
                 }
             }
         }
-    ) {
-        innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding).fillMaxSize(), contentAlignment = Alignment.Center){
-            when(selectedItem) {
-                0 -> HomeTab()
-                1 -> QueuesTab()
-                2 -> CalendarTab()
-                3 -> RequestsTab()
-                4 -> FilesTab()
+    ) { innerPadding ->
+        NavHost(
+            navController = tabNavController,
+            startDestination = NavigationItem.Home.route,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable(NavigationItem.Home.route) {
+                HomeTab(tabNavController)
             }
+            composable(NavigationItem.Queues.route) {
+                QueuesTab()
+            }
+            composable(NavigationItem.Calendar.route){
+                CalendarTab()
+            }
+            composable(NavigationItem.Files.route){
+                FilesTab()
+            }
+            composable(NavigationItem.Requests.route) {
+                RequestsTab()
+            }
+
         }
     }
 }
 
-@Composable
-fun HomeTab(){
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-        Text(text = "Home")
-    }
-}
 
 
 @Composable
@@ -141,6 +126,7 @@ fun RequestsTab(){
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
+    val navController = rememberNavController()
     KubikTheme() {
         HomeScreen()
     }

@@ -6,20 +6,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.kubik.presentation.home.HomeScreen
 import com.example.kubik.presentation.login.LoginScreen
+import com.example.kubik.presentation.queues.QueuesTab
 
 @Composable
 fun KubikApp(){
-    val navController = rememberNavController()             // Создание контроллера
+    val globalNavController = rememberNavController()             // Создание контроллера
 
     NavHost(
-        navController = navController,
+        navController = globalNavController,
         startDestination = "login"
     ){
         composable ("login") {                      // Описание маршрута для логина
             LoginScreen(
                 onLoginSuccess = {
                     // Когда логин успешен, переходим на глвный экран
-                    navController.navigate("home") {
+                    globalNavController.navigate("home") {
                         // Достаем из стека все предыдущие экраны вплоть до login (inclusive включает сам экран)
                         popUpTo("login") { inclusive = true }
                     }
@@ -29,5 +30,6 @@ fun KubikApp(){
         composable ("home"){
             HomeScreen()
         }
+
     }
 }

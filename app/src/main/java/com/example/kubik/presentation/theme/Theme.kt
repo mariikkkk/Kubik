@@ -12,21 +12,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
+    primary = KubikPrimary,
+    background = KubikBackgroundDark,
+    surface = SurfaceDark,
+    onSurface = OnSurfaceTextDark,
     secondary = PurpleGrey80,
-    tertiary = Pink80
+    tertiary = Pink80,
+    onSecondary = textOnBackgroundSecondary,
+    outline = OutlinedDark
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = UniBlue,              // основной цвет (кнопки, акценты)
+    primary = KubikPrimary,              // основной цвет (кнопки, акценты)
     secondary = StatusGreen,        // вторичный цвет     //
-    background = Color.White,       // общий фон
-    surface = SurfaceVariant,       // фон карточек
+    background = KubikBackground,       // общий фон
+    surface = Surface,       // фон карточек
     onPrimary = Color.White,        // текст на основном цвете
     onBackground = TextPrimary,      // текст на общем фоне
-    onSecondary = Color.White,
+    onSecondary = textOnBackgroundSecondary,
     onTertiary = Color.White,
-    onSurface = Color(0xFF1C1B1F),
+    onSurface = OnSurfaceText,
+    outline = Outlined
 
 )
 
@@ -34,7 +40,7 @@ private val LightColorScheme = lightColorScheme(
 fun KubikTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
