@@ -1,5 +1,6 @@
 package com.example.kubik.presentation.files
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -15,6 +16,9 @@ fun FilesTab(viewModel: FilesViewModel = viewModel()){
     val context = LocalContext.current
     val isUploading by viewModel.isUploading.collectAsState()                                        // collectAsState подписывает на поток (кран, через который течет поток данных)
 
+    BackHandler(enabled = selectedFolder != null) {
+        selectedFolder = null
+    }
     if (selectedFolder == null){
         FilesListScreen(
             viewModel.folderList,
