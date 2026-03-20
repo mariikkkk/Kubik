@@ -10,6 +10,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -58,14 +59,23 @@ import com.example.kubik.presentation.navigation.NavigationItem
 import com.example.kubik.presentation.theme.KubikTheme
 
 @Composable
-fun HomeTab(tabNavController: NavController){
+fun HomeTab(
+    tabNavController: NavController,
+    innerPadding: PaddingValues,
+    isDarkTheme: Boolean
+){
 
-    val isDarkTheme = isSystemInDarkTheme()
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.background)
-            .padding(top = 24.dp, start = 16.dp, end = 16.dp)
+            .background(color = MaterialTheme.colorScheme.background),
+            //.padding(top = 24.dp, start = 16.dp, end = 16.dp)
+        contentPadding = PaddingValues(
+            top = innerPadding.calculateTopPadding() + 8.dp,
+            start = 16.dp,
+            end = 16.dp,
+            bottom = innerPadding.calculateBottomPadding() + 16.dp
+        ),
     ) {
         item{
             Row(
@@ -202,6 +212,24 @@ fun HomeTab(tabNavController: NavController){
                 "Завтра первая пара отменяется, приходим ко второй (10:00). Не проспите!",
                 "Сегодня, 14:30"
             )
+            Spacer(modifier = Modifier.height(8.dp))
+            NotificationCard(
+                "Перенос пар ⚠\uFE0F",
+                "Завтра первая пара отменяется, приходим ко второй (10:00). Не проспите!",
+                "Сегодня, 14:30"
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            NotificationCard(
+                "Перенос пар ⚠\uFE0F",
+                "Завтра первая пара отменяется, приходим ко второй (10:00). Не проспите!",
+                "Сегодня, 14:30"
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            NotificationCard(
+                "Перенос пар ⚠\uFE0F",
+                "Завтра первая пара отменяется, приходим ко второй (10:00). Не проспите!",
+                "Сегодня, 14:30"
+            )
         }
         item{
             Spacer(modifier = Modifier.height(24.dp))
@@ -258,7 +286,7 @@ fun HomeTabPreview(){
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
         ){
-            HomeTab(tabNavController = navController)
+            HomeTab(tabNavController = navController, innerPadding = PaddingValues(0.dp), false)
         }
 
     }

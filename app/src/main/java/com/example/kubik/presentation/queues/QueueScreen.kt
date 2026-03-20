@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -53,7 +54,7 @@ import com.example.kubik.domain.models.QueueSlot
 import com.example.kubik.presentation.theme.KubikTheme
 
 @Composable
-fun QueuesTab(viewModel: QueuesViewModel = viewModel()){
+fun QueuesTab(innerPadding: PaddingValues ,viewModel: QueuesViewModel = viewModel()){
     var selectedQueueId by remember { mutableStateOf<Int?>(null) } // Хранит id выбранной очереди
 
     if (selectedQueueId == null){
@@ -63,8 +64,8 @@ fun QueuesTab(viewModel: QueuesViewModel = viewModel()){
             onQueueClick = { queueId ->
                 viewModel.loadSlotsForQueue(queueId)
                 selectedQueueId = queueId // Пользователь кликнул => меняем состояние
-            }
-
+            },
+            innerPadding = innerPadding
         )
     }else{
         // Второй уровень с деталями очереди
@@ -109,11 +110,19 @@ fun QueueSlotItem(slot: QueueSlot, onClick: () -> Unit){
 }
 
 @Composable
-fun QueuesListScreen(queues: List<QueueItem>, onQueueClick: (Int) -> Unit) {
+fun QueuesListScreen(
+    queues: List<QueueItem>,
+    onQueueClick: (Int) -> Unit,
+    innerPadding: PaddingValues) {
     val context = LocalContext.current
     Column(modifier = Modifier
         .fillMaxSize()
-        .padding(16.dp)) {
+        .padding(
+            top = innerPadding.calculateTopPadding() + 8.dp,
+            start = 16.dp,
+            end = 16.dp
+        ),
+        ) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically){
             Icon(
                 Icons.Default.List,
@@ -144,7 +153,10 @@ fun QueuesListScreen(queues: List<QueueItem>, onQueueClick: (Int) -> Unit) {
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
-        LazyColumn {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxHeight()
+        ) {
             items(queues) { queue ->
                 Card(
                     modifier = Modifier
@@ -283,5 +295,20 @@ fun GreetingPreview() {
 //                QueueItem(1, "Queue 1", "Subtitle 1", 10, 5, "Status 1")
 //            ), onQueueClick = {})
         QueueDetailsScreen(viewModel(), {}, 1)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreview1() {
+    KubikTheme {
+        QueuesListScreen(
+            listOf(
+                QueueItem(1, "Queue 1", "Subtitle 1", 10, null, "Status 1"),
+                QueueItem(1, "Queue 1", "Subtitle 1", 10, 5, "Status 1")
+            ),
+            onQueueClick = {},
+            innerPadding = PaddingValues(0.dp)
+        )
     }
 }
