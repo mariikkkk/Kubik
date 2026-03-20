@@ -1,6 +1,7 @@
 package com.example.kubik.presentation.files
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -11,7 +12,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun FilesTab(viewModel: FilesViewModel = viewModel()){
+fun FilesTab(
+    viewModel: FilesViewModel = viewModel(),
+    innerPadding: PaddingValues
+){
     var selectedFolder by remember { mutableStateOf<Int?>(null) }
     val context = LocalContext.current
     val isUploading by viewModel.isUploading.collectAsState()                                        // collectAsState подписывает на поток (кран, через который течет поток данных)
@@ -22,6 +26,7 @@ fun FilesTab(viewModel: FilesViewModel = viewModel()){
     if (selectedFolder == null){
         FilesListScreen(
             viewModel.folderList,
+            innerPadding,
             onFolderClick = { selectedFolderId ->
                     selectedFolder = selectedFolderId
                     viewModel.loadFilesForFolder(selectedFolderId)
@@ -50,6 +55,7 @@ fun FilesTab(viewModel: FilesViewModel = viewModel()){
             folderName,
             filesForThisFolder,
             isUploading = isUploading,
+            innerPadding = innerPadding,
                 { selectedFolder = null},
             {fileName, category, fileUri ->
                     viewModel.addFile(context,

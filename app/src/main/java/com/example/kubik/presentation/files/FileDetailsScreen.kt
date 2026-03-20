@@ -59,6 +59,7 @@ fun FileDetailsScreen(
     folderName: String,
     files: List<FileItem>,
     isUploading: Boolean = false,
+    innerPadding: PaddingValues,
     onBackClick: () -> Unit,
     onAddFileClick: (String, FileCategory, Uri) -> Unit,
     onDeleteFileClick: (Int) -> Unit,
@@ -93,10 +94,13 @@ fun FileDetailsScreen(
     Box(modifier = Modifier
         .fillMaxSize()
         .background(MaterialTheme.colorScheme.background)
+        .padding(
+            top = innerPadding.calculateTopPadding() + 8.dp,
+            start = 12.dp,
+            end = 12.dp
+        )
     ){
-        Column(modifier = Modifier
-
-            .padding(horizontal = 12.dp))
+        Column()
         {
             Row(
                 modifier = Modifier

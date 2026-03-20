@@ -10,6 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -66,6 +67,7 @@ import com.example.kubik.presentation.theme.KubikTheme
 @Composable
 fun FilesListScreen(
     filesFolders: List<FileFolderItem>,
+    innerPadding: PaddingValues,
     onFolderClick: (Int) -> Unit,
     searchQuery: String,
     selectedSemester: Int,
@@ -93,12 +95,18 @@ fun FilesListScreen(
         }
     }
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(
+                top = innerPadding.calculateTopPadding() + 8.dp,
+                start = 16.dp,
+                end = 16.dp
+            )
+        ,
     ) {
         Column(
             modifier =
                 Modifier.fillMaxSize()
-                    .padding(horizontal = 16.dp)
         ) {
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -383,9 +391,19 @@ fun FilesListScreen(
 @Composable
 fun GreetingPreview() {
     KubikTheme {
-        FilesListScreen(listOf(FileFolderItem(1,"Математический анализ", 12, 1),
+        FilesListScreen(
+            listOf(FileFolderItem(1,"Математический анализ", 12, 1),
             FileFolderItem(2,"Дискретная математика", 12, 2),
             FileFolderItem(3,"Линейная алгебра", 16, 12),
-            FileFolderItem(4,"ООП", 32, 3),), onFolderClick = {}, searchQuery = "", selectedSemester = 1, onSemesterChange = {}, onSearchQueryChange = {}, onAddFileClick = { s,d,f, u ->}, onAddFolderClick =  {s ->}, onDeleteFolderSwipe =  {i ->})
+            FileFolderItem(4,"ООП", 32, 3),),
+            PaddingValues(0.dp),
+            onFolderClick = {},
+            searchQuery = "",
+            selectedSemester = 1,
+            onSemesterChange = {},
+            onSearchQueryChange = {},
+            onAddFileClick = { s,d,f, u ->},
+            onAddFolderClick =  {s ->},
+            onDeleteFolderSwipe =  {i ->})
     }
 }
