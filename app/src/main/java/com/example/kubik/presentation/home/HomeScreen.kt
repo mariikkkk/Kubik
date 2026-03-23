@@ -23,6 +23,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,15 +40,23 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.kubik.R
+import com.example.kubik.di.SupabaseModule
 import com.example.kubik.presentation.files.FilesTab
 import com.example.kubik.presentation.navigation.NavigationItem
 import com.example.kubik.presentation.queues.QueuesTab
 import com.example.kubik.presentation.theme.KubikTheme
+import io.github.jan.supabase.gotrue.auth
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(isDarkTheme: Boolean, onThemeChange: () -> Unit){
+fun HomeScreen(
+    isDarkTheme: Boolean,
+    onThemeChange: () -> Unit,
+    onLogout: () -> Unit
+){
+    val scope = rememberCoroutineScope()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     val items = listOf(
         NavigationItem.Calendar,
@@ -95,7 +104,17 @@ fun HomeScreen(isDarkTheme: Boolean, onThemeChange: () -> Unit){
                         )
                     }
                     IconButton(
-                        onClick = {}
+                        onClick = {
+                            scope.launch {
+                                try{
+                                    SupabaseModule.supabase.auth.signOut()
+                                    onLogout()
+                                } catch (e : Exception){
+                                    println("Error signing out: $e")
+                                }
+
+                            }
+                        }
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.exit),
@@ -191,6 +210,8 @@ fun RequestsTab(){
 fun GreetingPreview() {
     val navController = rememberNavController()
     KubikTheme() {
-        HomeScreen(false, {})
+        HomeScreen(false,
+            {},
+            {})
     }
 }

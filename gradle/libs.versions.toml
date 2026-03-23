@@ -8,6 +8,7 @@ espressoCore = "3.7.0"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.12.4"
 composeBom = "2026.02.01"
+onetapCompose = "2.6.2"
 viewmodelCompose = "2.10.0"
 navigationCompose = "2.9.7"
 material3 = "1.4.0"
@@ -18,6 +19,9 @@ firebaseStorage = "22.0.1"
 firebaseBom = "34.10.0"
 amazonAwsSdk = "2.81.1"
 firebaseStorageKtx = "22.0.1"
+vkid = "2.6.2"
+supabase = "2.6.1"
+ktor = "2.3.12"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,6 +47,15 @@ firebase-storage = { group = "com.google.firebase", name = "firebase-storage", v
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 amazon-aws-sdk-android = { group = "com.amazonaws", name = "aws-android-sdk-s3", version.ref = "amazonAwsSdk"}
 firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
+onetap-compose = { module = "com.vk.id:onetap-compose", version.ref = "onetapCompose" }
+vkid = { group = "com.vk.id", name = "vkid", version.ref = "vkid" }
+supabase-bom = { module = "io.github.jan-tennert.supabase:bom", version.ref = "supabase" }
+supabase-auth = { module = "io.github.jan-tennert.supabase:gotrue-kt", version.ref = "supabase" }
+supabase-postgrest = { module = "io.github.jan-tennert.supabase:postgrest-kt", version.ref = "supabase" }
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktor" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
