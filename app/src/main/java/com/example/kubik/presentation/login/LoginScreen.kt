@@ -2,6 +2,8 @@ package com.example.kubik.presentation.login
 
 import android.graphics.BlurMaskFilter
 import android.graphics.BlurMaskFilter.Blur
+import android.graphics.Paint
+import android.util.Log
 import android.widget.Space
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,12 +27,17 @@ import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -52,16 +60,58 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kubik.R
 import com.example.kubik.presentation.login.component.LoginBackground
 import com.example.kubik.presentation.navigation.KubikApp
 import com.example.kubik.presentation.theme.KubikTheme
+import com.vk.id.AccessToken
+import com.vk.id.VKID
+import com.vk.id.VKIDAuthFail
+import com.vk.id.auth.VKIDAuthCallback
+import com.vk.id.auth.VKIDAuthParams
+import com.vk.id.onetap.common.OneTapStyle
+import com.vk.id.onetap.compose.onetap.OneTap
+import com.vk.id.onetap.compose.onetap.OneTapTitleScenario
+import kotlinx.coroutines.launch
 
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel = viewModel(), onLoginSuccess: () -> Unit){
+fun LoginScreen(
+    viewModel: LoginViewModel = hiltViewModel(),
+    onLoginSuccess: () -> Unit
+){
+    val scope = rememberCoroutineScope()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val vkAuthCallback = remember {
+        object : VKIDAuthCallback {
+            override fun onAuth(accessToken: AccessToken) {
+                Log.d("KUBIK_AUTH", "1. ВК успешно вошел. ID: ${accessToken.userID}")
+                val userId = accessToken.userID
+                val firstName = accessToken.userData.firstName ?: "MAX"
+                val lastName = accessToken.userData.lastName ?: ""
+                viewModel.authWithVk(
+                    userId,
+                    firstName = firstName,
+                    lastName = lastName,
 
+                    {
+                        Log.d("KUBIK_AUTH", "2. Supabase успешно авторизовал!")
+                        onLoginSuccess()
+                    },
+                    {error ->
+                        Log.e("KUBIK_AUTH", "ОШИБКА Supabase: $error")
+                        println(error)
+                    })
+
+            }
+
+            override fun onFail(fail: VKIDAuthFail) {
+                println("VK auth failed: $fail")
+            }
+        }
+    }
     LoginBackground {
         Column(
             modifier = Modifier
@@ -114,7 +164,15 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel(), onLoginSuccess: () -> U
             Spacer(Modifier.height(48.dp))
 
             Button(
-                onClick = { onLoginSuccess() },
+                onClick = {
+                    if (!isLoading) {
+                        scope.launch {
+                            VKID.instance.authorize(
+                                callback = vkAuthCallback
+                            )
+                        }
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF0077FF),
                     contentColor = Color.White
@@ -129,7 +187,7 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel(), onLoginSuccess: () -> U
                     )
                     .drawBehind{
                         drawIntoCanvas { canvas ->
-                            val paint = android.graphics.Paint()
+                            val paint = Paint()
                             paint.apply {
                                 color = Color(0xFF2B7FFF).toArgb()
                                 maskFilter = BlurMaskFilter(15f,Blur.NORMAL)
@@ -148,21 +206,29 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel(), onLoginSuccess: () -> U
                     },
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Icon(
-                    painter = painterResource(
-                        R.drawable.socialvkontakte
-                    ),
-                    contentDescription = "Войти через VK",
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(Modifier.width(8.dp))
-                Text("Войти через VK",
-                    color = Color.White,
-                    fontFamily = FontFamily(
-                        Font(R.font.inter_bold, FontWeight.Normal)
-                    ),
-                    fontSize = 16.sp
-                )
+                if(isLoading){
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }else{
+                    Icon(
+                        painter = painterResource(
+                            R.drawable.socialvkontakte
+                        ),
+                        contentDescription = "Войти через VK",
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text("Войти через VK",
+                        color = Color.White,
+                        fontFamily = FontFamily(
+                            Font(R.font.inter_bold, FontWeight.Normal)
+                        ),
+                        fontSize = 16.sp
+                    )
+                }
+
             }
             Spacer(Modifier.height(16.dp))
             Button(
@@ -180,7 +246,7 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel(), onLoginSuccess: () -> U
                         shape = RoundedCornerShape(12.dp)
                     ).drawBehind{
                         drawIntoCanvas { canvas ->
-                            val paint = android.graphics.Paint()
+                            val paint = Paint()
                             paint.apply {
                                 color = Color(0xFF00A6F4).toArgb()
                                 maskFilter = BlurMaskFilter(15f,Blur.NORMAL)
@@ -230,7 +296,7 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel(), onLoginSuccess: () -> U
                         shape = RoundedCornerShape(12.dp)
                     ).drawBehind{
                         drawIntoCanvas { canvas ->
-                            val paint = android.graphics.Paint()
+                            val paint = Paint()
                             paint.apply {
                                 color = Color(0xFF000000).toArgb()
                                 maskFilter = BlurMaskFilter(15f,Blur.NORMAL)
