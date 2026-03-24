@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.firebase.storage)
     implementation(libs.androidx.compose.foundation)
     implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation(libs.vkid)
     implementation(libs.onetap.compose)
     implementation("com.google.dagger:hilt-android:2.57.1")

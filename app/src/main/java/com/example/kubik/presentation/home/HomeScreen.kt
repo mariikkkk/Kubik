@@ -22,7 +22,10 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -45,6 +49,7 @@ import com.example.kubik.di.SupabaseModule
 import com.example.kubik.domain.models.ThemeMode
 import com.example.kubik.presentation.files.FilesTab
 import com.example.kubik.presentation.home.components.CustomDrawerContent
+import com.example.kubik.presentation.home.components.CustomRenameProfileDialog
 import com.example.kubik.presentation.navigation.NavigationItem
 import com.example.kubik.presentation.queues.QueuesTab
 import com.example.kubik.presentation.theme.KubikTheme
@@ -66,6 +71,7 @@ fun HomeScreen(
         ThemeMode.SYSTEM -> isSystemInDarkTheme()
     }
     val scope = rememberCoroutineScope()
+    var showEditDialog by remember { mutableStateOf(false) }
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     val items = listOf(
         NavigationItem.Calendar,
@@ -85,16 +91,15 @@ fun HomeScreen(
         drawerContent = {
                 CustomDrawerContent(
                     user = user,
-                    {scope.launch {
-                        try {
-                            SupabaseModule.supabase.auth.signOut()
-                            onLogout()
-                        } catch (e: Exception) {
-                            println("Error signing out: $e")
-                        }
-                    }
+                    {
+                        viewModel.logout { onLogout() }
                     },
-                    { } ,
+                    {
+                        showEditDialog = true
+                        scope.launch {
+                                drawerState.close()
+                            }
+                    } ,
                     onThemeChange = onThemeChange,
                     currentTheme = currentTheme
                 )
@@ -176,7 +181,7 @@ fun HomeScreen(
                 modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
             ) {
                 composable(NavigationItem.Home.route) {
-                    HomeTab(user, tabNavController, innerPadding, isDarkTheme)
+                    HomeTab(tabNavController, innerPadding, isDarkTheme)
                 }
                 composable(NavigationItem.Queues.route) {
                     QueuesTab(innerPadding)
@@ -193,6 +198,16 @@ fun HomeScreen(
 
             }
         }
+    }
+    if (showEditDialog && user != null){
+        CustomRenameProfileDialog(
+            user = user!!,
+            onDismiss = { showEditDialog = false },
+            onConfirm = { firstName, lastName ->
+                viewModel.updateUserProfile(firstName, lastName)
+                showEditDialog = false
+            }
+        )
     }
 
 }

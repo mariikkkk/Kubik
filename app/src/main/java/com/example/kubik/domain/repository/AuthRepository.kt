@@ -8,5 +8,7 @@ interface AuthRepository {
     suspend fun loginWithVK(userId: Long, firstName: String, lastName: String): Result<User>
     suspend fun getCurrentUser(): User?
     suspend fun checkHasCurrentSession(): Boolean
+    suspend fun logout()
     fun observeAuthState(): Flow<AuthState> // Поток статусов для NavHost
+    suspend fun updateUserProfile(firstName: String, lastName: String)
 }

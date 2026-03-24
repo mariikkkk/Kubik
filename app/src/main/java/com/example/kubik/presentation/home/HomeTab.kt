@@ -34,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -48,6 +49,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.kubik.R
@@ -61,11 +64,12 @@ import com.example.kubik.presentation.theme.KubikTheme
 
 @Composable
 fun HomeTab(
-    user: User?,
     tabNavController: NavController,
     innerPadding: PaddingValues,
-    isDarkTheme: Boolean
+    isDarkTheme: Boolean,
+    viewModel: ProfileViewModel = hiltViewModel()
 ){
+    val user by viewModel.userState.collectAsStateWithLifecycle()
 
     LazyColumn(
         modifier = Modifier
@@ -288,9 +292,7 @@ fun HomeTabPreview(){
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
         ){
-            HomeTab(user = User(
-                "1", "Марат", "Цой"
-            ),tabNavController = navController, innerPadding = PaddingValues(0.dp), false)
+            HomeTab(tabNavController = navController, innerPadding = PaddingValues(0.dp), false)
         }
 
     }

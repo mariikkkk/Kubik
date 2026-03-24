@@ -64,7 +64,7 @@ class SupabaseAuthRepositoryImpl @Inject constructor() : AuthRepository {
     }
 
     override suspend fun getCurrentUser(): User? {
-        val session = SupabaseModule.supabase.auth.currentSessionOrNull()
+        val session = SupabaseModule.supabase.auth.currentSessionOrNull() ?: return null
         val metadata = session?.user?.userMetadata
         val firstName = metadata?.get("first_name").toString().replace("\"", "")
         val lastName = metadata?.get("last_name").toString().replace("\"", "")
@@ -83,6 +83,14 @@ class SupabaseAuthRepositoryImpl @Inject constructor() : AuthRepository {
         return SupabaseModule.supabase.auth.currentSessionOrNull() != null
     }
 
+    override suspend fun logout() {
+        try{
+            SupabaseModule.supabase.auth.signOut()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     override fun observeAuthState(): Flow<AuthState> {
         return SupabaseModule.supabase.auth.sessionStatus.map { status ->
             when(status){
@@ -93,6 +101,19 @@ class SupabaseAuthRepositoryImpl @Inject constructor() : AuthRepository {
             }
         }
 
+    }
+
+    override suspend fun updateUserProfile(firstName: String, lastName: String) {
+        try{
+            SupabaseModule.supabase.auth.modifyUser {
+                data = buildJsonObject {
+                    put("first_name", firstName)
+                    put("last_name", lastName)
+                }
+            }
+        }catch (e: Exception){
+            e.printStackTrace()
+        }
     }
 
 }
