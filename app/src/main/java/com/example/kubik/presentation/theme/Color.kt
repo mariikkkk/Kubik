@@ -32,6 +32,18 @@ val Outlined = Color(0xFFF1F5F9)                    // Обводка карто
 
 val OutlinedDark = Color(0xFF1D293D)                // Обводка карточек (темная)
 
+val PrimaryContainerDark = Color(0xFF0F172B)
+
+val PrimaryContainer = Color(0xFFF1F5F9)
+
+val textOnPrimaryContainerDark = Color(0xFFCAD5E2)
+
+val textOnPrimaryContainer = Color(0xFF314158)
+
+val secondaryContainerDark = Color(0xFF1D293D)
+
+val secondaryContainer = Color(0xFFF1F5F9)
+
 
 val StatusGreen = Color(0xFF4ADE80) // Статус "Идет сдача"
 

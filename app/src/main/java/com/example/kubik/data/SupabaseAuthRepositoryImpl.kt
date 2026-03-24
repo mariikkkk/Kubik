@@ -63,8 +63,20 @@ class SupabaseAuthRepositoryImpl @Inject constructor() : AuthRepository {
         }
     }
 
-    override suspend fun getCurrentUser(): Result<User> {
-        TODO("Not yet implemented")
+    override suspend fun getCurrentUser(): User? {
+        val session = SupabaseModule.supabase.auth.currentSessionOrNull()
+        val metadata = session?.user?.userMetadata
+        val firstName = metadata?.get("first_name").toString().replace("\"", "")
+        val lastName = metadata?.get("last_name").toString().replace("\"", "")
+
+        val user = User(
+            id = session?.user?.id ?: "",
+            firstName = firstName,
+            lastName = lastName,
+            group = "Пока не в группе",
+            role = "Студент"
+        )
+        return user
     }
 
     override suspend fun checkHasCurrentSession(): Boolean {

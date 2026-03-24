@@ -19,7 +19,10 @@ private val DarkColorScheme = darkColorScheme(
     secondary = PurpleGrey80,
     tertiary = Pink80,
     onSecondary = textOnBackgroundSecondary,
-    outline = OutlinedDark
+    outline = OutlinedDark,
+    primaryContainer = PrimaryContainerDark,
+    onPrimaryContainer = textOnPrimaryContainerDark,
+    secondaryContainer = secondaryContainerDark
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -32,7 +35,10 @@ private val LightColorScheme = lightColorScheme(
     onSecondary = textOnBackgroundSecondary,
     onTertiary = Color.White,
     onSurface = OnSurfaceText,
-    outline = Outlined
+    outline = Outlined,
+    primaryContainer = PrimaryContainer,
+    onPrimaryContainer = textOnPrimaryContainer,
+    secondaryContainer = secondaryContainer
 
 )
 
