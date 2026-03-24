@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.kubik.R
+import com.example.kubik.domain.models.User
 import com.example.kubik.presentation.home.components.EventCard
 import com.example.kubik.presentation.home.components.GreetingCard
 import com.example.kubik.presentation.home.components.MainCard
@@ -60,6 +61,7 @@ import com.example.kubik.presentation.theme.KubikTheme
 
 @Composable
 fun HomeTab(
+    user: User?,
     tabNavController: NavController,
     innerPadding: PaddingValues,
     isDarkTheme: Boolean
@@ -113,7 +115,7 @@ fun HomeTab(
         }
         item{
             Spacer(modifier = Modifier.height(24.dp))
-            GreetingCard()
+            GreetingCard(user)
         }
         item{
             Spacer(modifier = Modifier.height(24.dp))
@@ -286,7 +288,9 @@ fun HomeTabPreview(){
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
         ){
-            HomeTab(tabNavController = navController, innerPadding = PaddingValues(0.dp), false)
+            HomeTab(user = User(
+                "1", "Марат", "Цой"
+            ),tabNavController = navController, innerPadding = PaddingValues(0.dp), false)
         }
 
     }

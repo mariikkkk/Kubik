@@ -93,7 +93,7 @@ fun CustomUploadDialog(
     var expandedCategoryMenu by remember { mutableStateOf(false) }
     var expandedFolderMenu by remember { mutableStateOf(false) }
     var selectedFolder by remember { mutableStateOf(folders.find {
-        it.id == (initialFolderId ?: folders.firstOrNull())
+        it.id == (initialFolderId ?: folders.firstOrNull()?.id)
     }) }
     val context = LocalContext.current // пропуск к системным функциям приложения
     // Переменная для хранения ссылки на выбранный файл с устройства

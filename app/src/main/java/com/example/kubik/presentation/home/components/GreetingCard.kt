@@ -20,9 +20,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kubik.R
+import com.example.kubik.domain.models.User
 
 @Composable
-fun GreetingCard(){
+fun GreetingCard(
+    user: User?
+){
     Card(
         shape = RoundedCornerShape(32.dp),
         modifier = Modifier.fillMaxWidth()
@@ -44,7 +47,7 @@ fun GreetingCard(){
                 modifier = Modifier
                     .padding(horizontal = 24.dp, vertical = 24.dp)
             ) {
-                Text("Привет, Студент! ✌🏻",
+                Text("Привет, ${user?.firstName ?: "Студент"}! ✌🏻",
                     fontFamily = FontFamily(
                         Font(R.font.inter_bold, FontWeight.Bold)
                     ),

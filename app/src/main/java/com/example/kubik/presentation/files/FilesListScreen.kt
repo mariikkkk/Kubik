@@ -47,6 +47,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,7 +80,7 @@ fun FilesListScreen(
     onDeleteFolderSwipe: (Int) -> Unit
 ) {
     var expaneded by remember { mutableStateOf(false) } // Состояние для открытия/закрытия списка семестров
-    var showAddDialog by remember { mutableStateOf(false) }
+    var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var isFabExpanded by remember { mutableStateOf(false) }
     var showAddFolderDialog by remember { mutableStateOf(false )}
     var folderIdToDelete by remember { mutableStateOf<Int?>(null) }

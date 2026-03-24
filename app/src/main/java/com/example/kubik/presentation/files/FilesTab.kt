@@ -7,6 +7,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -16,7 +17,7 @@ fun FilesTab(
     viewModel: FilesViewModel = hiltViewModel(),
     innerPadding: PaddingValues
 ){
-    var selectedFolder by remember { mutableStateOf<Int?>(null) }
+    var selectedFolder by rememberSaveable { mutableStateOf<Int?>(null) }
     val context = LocalContext.current
     val isUploading by viewModel.isUploading.collectAsState()                                        // collectAsState подписывает на поток (кран, через который течет поток данных)
 

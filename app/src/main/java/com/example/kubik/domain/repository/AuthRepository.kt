@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
     suspend fun loginWithVK(userId: Long, firstName: String, lastName: String): Result<User>
-    suspend fun getCurrentUser(): Result<User>
+    suspend fun getCurrentUser(): User?
     suspend fun checkHasCurrentSession(): Boolean
     fun observeAuthState(): Flow<AuthState> // Поток статусов для NavHost
 }
