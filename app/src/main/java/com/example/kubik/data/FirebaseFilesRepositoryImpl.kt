@@ -12,6 +12,7 @@ import com.example.kubik.domain.models.FileItem
 import com.example.kubik.domain.repository.FilesRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -21,8 +22,11 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.lang.Exception
+import javax.inject.Inject
 
-class FirebaseFilesRepositoryImpl(
+class FirebaseFilesRepositoryImpl @Inject constructor
+    (
+    @ApplicationContext private val context: Context,
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ): FilesRepository {
     private val storage = FirebaseStorage.getInstance()
@@ -90,7 +94,7 @@ class FirebaseFilesRepositoryImpl(
 
 
     @SuppressLint("Recycle")
-    override suspend fun addFile(context: Context, file: FileItem, fileUri: Uri) {
+    override suspend fun addFile(file: FileItem, fileUri: Uri) {
         withContext(Dispatchers.IO){                                                                // Переносим всю работу с главного потока в фоновый (передача заказа повару)
             try{
                 val accessKey = "I2GQS912HUOK6CP6O5LG"
