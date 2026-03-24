@@ -22,7 +22,8 @@ private val DarkColorScheme = darkColorScheme(
     outline = OutlinedDark,
     primaryContainer = PrimaryContainerDark,
     onPrimaryContainer = textOnPrimaryContainerDark,
-    secondaryContainer = secondaryContainerDark
+    secondaryContainer = secondaryContainerDark,
+    onSurfaceVariant = OnSurfaceVariantTextDark
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -38,8 +39,8 @@ private val LightColorScheme = lightColorScheme(
     outline = Outlined,
     primaryContainer = PrimaryContainer,
     onPrimaryContainer = textOnPrimaryContainer,
-    secondaryContainer = secondaryContainer
-
+    secondaryContainer = secondaryContainer,
+    onSurfaceVariant = OnSurfaceVariantText
 )
 
 @Composable
