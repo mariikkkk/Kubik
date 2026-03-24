@@ -9,11 +9,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun FilesTab(
-    viewModel: FilesViewModel = viewModel(),
+    viewModel: FilesViewModel = hiltViewModel(),
     innerPadding: PaddingValues
 ){
     var selectedFolder by remember { mutableStateOf<Int?>(null) }
@@ -36,7 +36,7 @@ fun FilesTab(
             onSemesterChange = {semester -> viewModel.updateSelectedSemester(semester)},
             onSearchQueryChange = {query -> viewModel.updateSearchQuery(query)},
             onAddFileClick = {fileName, category, targetFolderId, fileUri ->
-                viewModel.addFile(context, fileName, category, folderId = targetFolderId, fileUri)
+                viewModel.addFile(fileName, category, folderId = targetFolderId, fileUri)
             },
             isUploading = isUploading,
             onAddFolderClick = {folderName ->
@@ -58,18 +58,18 @@ fun FilesTab(
             innerPadding = innerPadding,
                 { selectedFolder = null},
             {fileName, category, fileUri ->
-                    viewModel.addFile(context,
+                    viewModel.addFile(
                         fileName, category, selectedFolder!!, fileUri)
             },
             {fileId -> viewModel.deleteFile(fileId)},
             onDownloadFileClick = {fileUrl, fileName ->
-                viewModel.downloadFile(context, fileUrl, fileName)
+                downloadFile(context, fileUrl, fileName)
             },
             onRenameFileClick = { fileId, newName ->
                 viewModel.deleteFile(fileId)
             },
             onShareFileClick = { fileUrl, fileName ->
-                viewModel.shareFile(context, fileUrl, fileName)
+                shareFile(context, fileUrl, fileName)
             }
 
         )
