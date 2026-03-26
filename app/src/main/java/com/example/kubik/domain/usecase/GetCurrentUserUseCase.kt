@@ -4,6 +4,7 @@ import com.example.kubik.domain.models.User
 import com.example.kubik.domain.repository.AuthRepository
 import javax.inject.Inject
 
+// Получение юзера из Supabase
 class GetCurrentUserUseCase @Inject constructor(
     private val authRepository: AuthRepository
 ) {

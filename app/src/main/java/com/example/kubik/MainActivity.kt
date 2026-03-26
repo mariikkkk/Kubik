@@ -22,6 +22,18 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        try {
+            val info = packageManager.getPackageInfo(packageName, android.content.pm.PackageManager.GET_SIGNATURES)
+            for (signature in info.signatures!!) {
+                val md = java.security.MessageDigest.getInstance("SHA-1")
+                md.update(signature.toByteArray())
+                val currentSignature = android.util.Base64.encodeToString(md.digest(), android.util.Base64.DEFAULT)
+                // Выводим в лог реальный ключ!
+                android.util.Log.e("DEBUG_KUBIK", "РЕАЛЬНЫЙ КЛЮЧ: $currentSignature")
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         VKID.init(this)
         VKID.instance.setLocale(Locale("ru"))
         VKID.logsEnabled = true

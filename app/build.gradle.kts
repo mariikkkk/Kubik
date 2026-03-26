@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -12,7 +14,6 @@ android {
     compileSdk {
         version = release(36)
     }
-
     defaultConfig {
         applicationId = "com.example.kubik"
         minSdk = 26
@@ -27,6 +28,15 @@ android {
             "VKIDClientID" to "54500334",
             "VKIDClientSecret" to "vyYGX9wSQQuMGYoNq2iY"
         ))
+        val properties = Properties()
+        val propertiesFile = project.rootProject.file("local.properties")
+        if (propertiesFile.exists()) {
+            properties.load(propertiesFile.inputStream())
+        }
+
+        buildConfigField("String", "AWS_ACCESS_KEY", properties.getProperty("AWS_ACCESS_KEY") ?: "\"\"")
+        buildConfigField("String", "AWS_SECRET_KEY", properties.getProperty("AWS_SECRET_KEY") ?: "\"\"")
+        buildConfigField("String", "VK_SALT", properties.getProperty("VK_PASSWORD_SALT") ?: "\"\"")
     }
 
     buildTypes {
@@ -47,6 +57,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -68,6 +79,7 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
     implementation(libs.vkid)
     implementation(libs.onetap.compose)
     implementation("com.google.dagger:hilt-android:2.57.1")

@@ -16,14 +16,16 @@ private val DarkColorScheme = darkColorScheme(
     background = KubikBackgroundDark,
     surface = SurfaceDark,
     onSurface = OnSurfaceTextDark,
-    secondary = PurpleGrey80,
-    tertiary = Pink80,
     onSecondary = textOnBackgroundSecondary,
     outline = OutlinedDark,
     primaryContainer = PrimaryContainerDark,
     onPrimaryContainer = textOnPrimaryContainerDark,
     secondaryContainer = secondaryContainerDark,
-    onSurfaceVariant = OnSurfaceVariantTextDark
+    onSurfaceVariant = OnSurfaceVariantTextDark,
+    tertiaryContainer = tertiaryContainerDark,
+    onTertiaryContainer = onTertiaryContainerDark,
+    tertiary = tertiaryDark,
+    onTertiary = onTertiaryDark
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -34,13 +36,16 @@ private val LightColorScheme = lightColorScheme(
     onPrimary = Color.White,        // текст на основном цвете
     onBackground = TextPrimary,      // текст на общем фоне
     onSecondary = textOnBackgroundSecondary,
-    onTertiary = Color.White,
+    tertiary = tertiary,
+    onTertiary = onTertiary,
     onSurface = OnSurfaceText,
     outline = Outlined,
     primaryContainer = PrimaryContainer,
     onPrimaryContainer = textOnPrimaryContainer,
     secondaryContainer = secondaryContainer,
-    onSurfaceVariant = OnSurfaceVariantText
+    onSurfaceVariant = OnSurfaceVariantText,
+    tertiaryContainer = tertiaryContainer,
+    onTertiaryContainer = onTertiaryContainer,
 )
 
 @Composable

@@ -81,6 +81,7 @@ fun HomeScreen(
         NavigationItem.Files
     )
     val user by viewModel.userState.collectAsStateWithLifecycle()
+    val groupName by viewModel.groupName.collectAsStateWithLifecycle()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val tabNavController = rememberNavController()
     val navBackStackEntry by tabNavController.currentBackStackEntryAsState()    // Слушаем переключение экрана
@@ -91,6 +92,7 @@ fun HomeScreen(
         drawerContent = {
                 CustomDrawerContent(
                     user = user,
+                    groupName = groupName,
                     {
                         viewModel.logout { onLogout() }
                     },

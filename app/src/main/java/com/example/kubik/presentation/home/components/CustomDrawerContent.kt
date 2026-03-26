@@ -44,6 +44,7 @@ import com.example.kubik.presentation.theme.KubikTheme
 @Composable
 fun CustomDrawerContent(
     user: User?,
+    groupName: String,
     onLogoutClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onThemeChange: (ThemeMode) -> Unit,
@@ -53,6 +54,11 @@ fun CustomDrawerContent(
         ThemeMode.LIGHT -> false
         ThemeMode.DARK -> true
         ThemeMode.SYSTEM -> isSystemInDarkTheme()
+    }
+    val role = when(user?.role){
+        "student" -> "Студент"
+        "starosta" -> "Староста"
+        else -> "Загрузка..."
     }
     ModalDrawerSheet(
         drawerContainerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -94,7 +100,7 @@ fun CustomDrawerContent(
                 fontSize = 20.sp
             )
             Text(
-                "${user?.group ?: "Загрузка..."} • ${user?.role ?: "Загрузка..."}",
+                "$groupName • ${role }",
                 modifier = Modifier.padding(start = 16.dp),
                 fontFamily = FontFamily(
                     Font(
@@ -168,6 +174,7 @@ fun PreviewCustomDrawerContent(){
         val isDarkTheme by remember { mutableStateOf(ThemeMode.DARK) }
         CustomDrawerContent(
             User("1","Марат", "Цой"),
+            "ИКБО-31-24",
             {},
             {},
             {},
