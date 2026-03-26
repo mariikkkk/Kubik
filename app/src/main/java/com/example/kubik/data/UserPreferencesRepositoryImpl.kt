@@ -43,7 +43,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             id = userId,
             firstName = prefs[FIRST_NAME] ?: "",
             lastName = prefs[LAST_NAME] ?: "",
-            group = prefs[GROUP] ?: "",
+            groupId = prefs[GROUP] ?: "",
             role = prefs[ROLE] ?: ""
         )
     }
@@ -58,7 +58,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             prefs[USER_ID] = user.id
             prefs[FIRST_NAME] = user.firstName
             prefs[LAST_NAME] = user.lastName
-            prefs[GROUP] = user.group
+            prefs[GROUP] = user.groupId ?: ""
             prefs[ROLE] = user.role
         }
     }

@@ -7,6 +7,7 @@ import android.net.Uri
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.PutObjectRequest
+import com.example.kubik.BuildConfig
 import com.example.kubik.domain.models.FileFolderItem
 import com.example.kubik.domain.models.FileItem
 import com.example.kubik.domain.repository.FilesRepository
@@ -27,7 +28,7 @@ import javax.inject.Inject
 class FirebaseFilesRepositoryImpl @Inject constructor
     (
     @ApplicationContext private val context: Context,
-    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val firestore: FirebaseFirestore
 ): FilesRepository {
     private val storage = FirebaseStorage.getInstance()
 
@@ -97,8 +98,8 @@ class FirebaseFilesRepositoryImpl @Inject constructor
     override suspend fun addFile(file: FileItem, fileUri: Uri) {
         withContext(Dispatchers.IO){                                                                // Переносим всю работу с главного потока в фоновый (передача заказа повару)
             try{
-                val accessKey = "I2GQS912HUOK6CP6O5LG"
-                val secretKey = "HEPEowHtrZCiUKcpYfz6neZDfcoGojHKdomjTijp"
+                val accessKey = BuildConfig.AWS_ACCESS_KEY
+                val secretKey = BuildConfig.AWS_SECRET_KEY
                 val bucketName = "795ec9d1-a8dc-4c2f-9c69-33e40f61f256"
                 val credentials = BasicAWSCredentials(accessKey, secretKey)                                 // Паспорт из ключей
                 val s3client = AmazonS3Client(credentials)                                  // передача паспорта клиенту

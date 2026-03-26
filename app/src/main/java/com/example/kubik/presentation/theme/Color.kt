@@ -19,16 +19,18 @@ val KubikBackgroundDark = Color(0xFF020618)     // Фон приложения �
 // =========================================
 val Surface = Color(0xFFFFFFFF)                 // Карточки и поля ввода (светлая)
 val SurfaceDark = Color(0xFF0F172B)             // Карточки в темной теме
-val surfaceVariant = Color(0xFFFFFFFF)          // Вариант поверхности (светлая)
-val surfaceVariantDark = Color(0xFF0F127B)      // Вариант поверхности (темная)
+val surfaceVariant = Color(0xFF2B7FFF)          // Вариант поверхности (светлая)
+val surfaceVariantDark = Color(0xFF2B7FFF)      // Вариант поверхности (темная)
 
 // =========================================
 // 4. КОНТЕЙНЕРЫ (Containers)
 // =========================================
-val PrimaryContainer = Color(0xFFF1F5F9)        // Основной контейнер (светлая)
+val PrimaryContainer = Color(0xFFFFFFFF)        // Основной контейнер (светлая)
 val PrimaryContainerDark = Color(0xFF0F172B)    // Основной контейнер (темная)
 val secondaryContainer = Color(0xFFF1F5F9)      // Вторичный контейнер (светлая)
 val secondaryContainerDark = Color(0xFF1D293D)  // Вторичный контейнер (темная)
+val tertiaryContainer = Color(0xFF2B7FFF)          // Вариант поверхности (светлая)
+val tertiaryContainerDark = Color(0xFF2B7FFF)      // Вариант поверхности (темная)
 
 // =========================================
 // 5. ТЕКСТ (Typography)
@@ -41,6 +43,12 @@ val OnSurfaceVariantTextDark = Color(0xFF90A1B9)    // Серый на фоне 
 val textOnPrimaryContainer = Color(0xFF314158)      // Текст на основном контейнере (светлая)
 val textOnPrimaryContainerDark = Color(0xFFCAD5E2)  // Текст на основном контейнере (темная)
 val textOnBackgroundSecondary = Color(0xff615FFF)   // Текст для темной темы на фоне
+val onTertiaryContainer = Color(0xFF1C398E)         // Текст для светлой темы на фоне пояснений
+val onTertiaryContainerDark = Color(0xFFBEDBFF)     // Текст для темной темы на фоне пояснений
+val onTertiary = Color(0xFF62748E)                  // Текст для светлой темы на фоне неактивных карточек
+val onTertiaryDark = Color(0xFF62748E)              // Текст для темной темы на фоне неактивных карточек
+
+
 
 // =========================================
 // 6. ГРАНИЦЫ И ОБВОДКИ (Borders & Outlines)
@@ -64,12 +72,7 @@ val titleGradient1 = Color(0xFF195CFB)
 val titleGradient2 = Color(0xFF4e3af6)
 
 // =========================================
-// 9. ДЕФОЛТНЫЕ ЦВЕТА (От Android Studio)
+// 9. Tertiary
 // =========================================
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
-
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val tertiary = Color(0xFFCAD5E2)
+val tertiaryDark = Color(0xFF1D293D)

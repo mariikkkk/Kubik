@@ -5,6 +5,7 @@ import com.example.kubik.domain.repository.UserPreferencesRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
+// Получение юзера из датастор
 class GetUserUseCase @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository
 )
