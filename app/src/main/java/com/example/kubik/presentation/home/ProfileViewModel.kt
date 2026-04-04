@@ -10,6 +10,7 @@ import com.example.kubik.domain.usecase.GetCurrentUserUseCase
 import com.example.kubik.domain.usecase.GetGroupByIdUseCase
 import com.example.kubik.domain.usecase.GetUserProfileFromFirestoreUseCase
 import com.example.kubik.domain.usecase.GetUserUseCase
+import com.example.kubik.domain.usecase.GetUsersGroupUseCase
 import com.example.kubik.domain.usecase.LogoutUseCase
 import com.example.kubik.domain.usecase.SaveUserUseCase
 import com.example.kubik.domain.usecase.UpdateUserProfileUseCase
@@ -34,7 +35,8 @@ class ProfileViewModel @Inject constructor(
     private val logoutUseCase: LogoutUseCase,
     private val updateUserProfileUseCase: UpdateUserProfileUseCase,
     private val getGroupByIdUseCase: GetGroupByIdUseCase,
-    private val getUserProfileFromFirestoreUseCase: GetUserProfileFromFirestoreUseCase
+    private val getUserProfileFromFirestoreUseCase: GetUserProfileFromFirestoreUseCase,
+    private val getUsersGroupUseCase: GetUsersGroupUseCase
 ): ViewModel()   {
     val userState: StateFlow<User?> = getUserUseCase().stateIn(
         scope = viewModelScope,
@@ -44,12 +46,19 @@ class ProfileViewModel @Inject constructor(
     private val _groupName = MutableStateFlow("Загрузка...")
     val groupName = _groupName.asStateFlow()
 
+    private val _pendingUsersCount = MutableStateFlow(0)
+    val pendingUsersCount: StateFlow<Int> = _pendingUsersCount.asStateFlow()
+
+
     init {
         syncUser()
         viewModelScope.launch {
             userState.collect { user ->
                 if (user?.groupId != null) {
                     fetchGroupName(user.groupId)
+                    getUsersGroupUseCase(user.groupId).collect { members ->
+                        _pendingUsersCount.value = members.count { it.status == "pending" }
+                    }
                 }
             }
         }
@@ -57,21 +66,22 @@ class ProfileViewModel @Inject constructor(
     }
     fun syncUser() {
         viewModelScope.launch {
-            try {
-                val currentUser = getCurrentUserUseCase()
+            val currentUserRes = getCurrentUserUseCase()
+            currentUserRes.onSuccess { currentUser ->
                 if (currentUser != null) {
-                    val fullProfile = getUserProfileFromFirestoreUseCase(currentUser.id)
-
-                    if (fullProfile != null && fullProfile.groupId != null) {
-                        saveUserUseCase(fullProfile)
-                    } else {
+                    val fullProfileRes = getUserProfileFromFirestoreUseCase(currentUser.id)
+                    fullProfileRes.onSuccess { fullProfile ->
+                        if (fullProfile != null && fullProfile.groupId != null) {
+                            saveUserUseCase(fullProfile)
+                        } else {
+                            saveUserUseCase(currentUser)
+                        }
+                    }.onFailure {
+                        Log.e("DEBUG_KUBIK", "Ошибка загрузки профиля из Firestore")
                         saveUserUseCase(currentUser)
                     }
                 }
-            } catch (e: CancellationException){
-                throw e
-            }
-            catch (e: Exception) {
+            }.onFailure { e ->
                 Log.e("DEBUG_KUBIK", "Ошибка синхронизации: ${e.message}")
             }
         }
@@ -80,17 +90,16 @@ class ProfileViewModel @Inject constructor(
     fun fetchGroupName(groupId: String){
         Log.d("DEBUG_KUBIK", "Пытаюсь найти группу с ID: '$groupId'")
         viewModelScope.launch {
-            try{
-                val group = getGroupByIdUseCase(groupId)
+            val groupRes = getGroupByIdUseCase(groupId)
+            groupRes.onSuccess { group ->
                 if(group != null){
                     _groupName.value = group.name
                 } else{
                     _groupName.value = "Группа не найдена"
                 }
-            } catch (e: Exception){
-                Log.e("ProfileViewModel", "Error fetching group name", e)
+            }.onFailure { e ->
+                Log.e("DEBUG_KUBIK", "Ошибка загрузки имени группы: ${e.message}")
             }
-
         }
     }
 
@@ -106,23 +115,18 @@ class ProfileViewModel @Inject constructor(
     }
     fun logout(onSuccess: () -> Unit){
         viewModelScope.launch {
-            try{
-                logoutUseCase()
-            } catch (e: Exception){
-                Log.e("DEBUG_KUBIK", "Supabase не ответил: ${e.message}", e)
-            } finally {
-                try{
-                    clearUserUseCase()
-                    withContext(Dispatchers.Main){
-                        onSuccess()
-                    }
-                } catch (e: Exception){
-                    Log.e("DEBUG_KUBIK", "Ошибка очистки локальных данных: ${e.message}")
-                }
-
+            val res = logoutUseCase()
+            res.onFailure { e ->
+                Log.e("DEBUG_KUBIK", "Ошибка выхода: ${e.message}")
             }
-
+            try{
+                clearUserUseCase()
+                withContext(Dispatchers.Main){
+                    onSuccess()
+                }
+            } catch (e: Exception){
+                Log.e("DEBUG_KUBIK", "Ошибка очистки локальных данных: ${e.message}")
+            }
         }
-
     }
 }
