@@ -42,25 +42,25 @@ fun NotificationCard(
             .fillMaxWidth()
             .heightIn(100.dp),
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.2f.dp, MaterialTheme.colorScheme.outline),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        border = BorderStroke(0.7f.dp, MaterialTheme.colorScheme.outline),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ){
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surface)
+                .background(MaterialTheme.colorScheme.primaryContainer.copy(0.3f))
                 .height(IntrinsicSize.Min)
         ){
-            Box(
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.primary)
-                    .fillMaxHeight()
-                    .width(8.dp),
-            )
+//            Box(
+//                modifier = Modifier
+//                    .background(MaterialTheme.colorScheme.primary)
+//                    .fillMaxHeight()
+//                    .width(8.dp),
+//            )
             Box(
                 modifier = Modifier
                     .heightIn(100.dp)
-                    .background(MaterialTheme.colorScheme.surface)
+                    .background(MaterialTheme.colorScheme.background)
             ){
                 Column(
                     modifier = Modifier.padding(16.dp)
