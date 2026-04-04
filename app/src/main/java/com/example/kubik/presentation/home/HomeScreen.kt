@@ -192,7 +192,7 @@ fun HomeScreen(
                 modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
             ) {
                 composable(NavigationItem.Home.route) {
-                    HomeTab(tabNavController, innerPadding, isDarkTheme)
+                    HomeTab(tabNavController, innerPadding)
                 }
                 composable(NavigationItem.Queues.route) {
                     QueuesTab(innerPadding)

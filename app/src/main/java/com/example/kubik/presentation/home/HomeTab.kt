@@ -55,107 +55,174 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.kubik.R
 import com.example.kubik.domain.models.User
+import com.example.kubik.presentation.home.components.DeadlineCard
 import com.example.kubik.presentation.home.components.EventCard
 import com.example.kubik.presentation.home.components.GreetingCard
 import com.example.kubik.presentation.home.components.MainCard
 import com.example.kubik.presentation.home.components.NotificationCard
+import com.example.kubik.presentation.home.components.QueueCard
 import com.example.kubik.presentation.navigation.NavigationItem
 import com.example.kubik.presentation.theme.KubikTheme
+import com.example.kubik.presentation.theme.LocalIsDarkTheme
 
 @Composable
 fun HomeTab(
     tabNavController: NavController,
     innerPadding: PaddingValues,
-    isDarkTheme: Boolean,
     viewModel: ProfileViewModel = hiltViewModel()
 ){
     val user by viewModel.userState.collectAsStateWithLifecycle()
+    val groupName by viewModel.groupName.collectAsStateWithLifecycle()
 
+    HomeTabContent(
+        user = user,
+        tabNavController = tabNavController,
+        innerPadding = innerPadding,
+        groupName
+    )
+}
+
+@Composable
+fun HomeTabContent(
+    user: User?,
+    tabNavController: NavController,
+    innerPadding: PaddingValues,
+    groupName: String
+){
+    val isDarkTheme = LocalIsDarkTheme.current
+    val role = when(user?.role){
+        "student" -> "Студент"
+        "starosta" -> "Староста"
+        else -> "Загрузка..."
+    }
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(color = MaterialTheme.colorScheme.background),
-            //.padding(top = 24.dp, start = 16.dp, end = 16.dp)
+        //.padding(top = 24.dp, start = 16.dp, end = 16.dp)
         contentPadding = PaddingValues(
-            top = innerPadding.calculateTopPadding() + 8.dp,
+            top = innerPadding.calculateTopPadding(),
             start = 16.dp,
             end = 16.dp,
             bottom = innerPadding.calculateBottomPadding() + 16.dp
         ),
     ) {
+
         item{
-            Row(
+            Spacer(modifier = Modifier.height(24.dp))
+                //GreetingCard(user)
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxWidth()
             ){
-                Icon(painter = painterResource(R.drawable.kubik),
-                    contentDescription = "Иконка Кубика",
+                Text(
+                    "Привет,",
+                    fontFamily = FontFamily(
+                        Font(
+                            R.font.inter_regular,
+                            FontWeight.Normal
+                        )
+                    ),
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    "${user?.firstName.toString()}\uD83D\uDC4B",
+                    fontFamily = FontFamily(
+                        Font(
+                            R.font.inter_medium,
+                            FontWeight.Medium
+                        )
+                    ),
+                    fontSize = 28.sp,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Spacer(Modifier.height(8.dp))
+                Row(
                     modifier = Modifier
-                        .size(48.dp),
-                    tint = MaterialTheme.colorScheme.primary)
-                Spacer(Modifier.width(16.dp ))
-                Column(){
-                    Text("КУБИК",
-                        fontFamily =
-                            FontFamily(
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                shape = RoundedCornerShape(24.dp),
+                                color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.1f)
+                            )
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.tertiaryContainer.copy(0.2f),
+                                shape = RoundedCornerShape(24.dp)
+                            )
+                            .padding(vertical = 2.dp, horizontal = 8.dp)
+                    ){
+                        Text(
+                            groupName,
+                            fontFamily = FontFamily(
                                 Font(
-                                    R.font.inter_black,
-                                    FontWeight.Normal)),
-                        fontSize = 24.sp,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Text("STUDENT DASHBOARD",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontFamily = FontFamily(
-                            Font(R.font.inter_bold, FontWeight.Bold)
-                        ),
+                                    R.font.inter_regular,
+                                    FontWeight.Normal
+                                )
+                            ),
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    Spacer(Modifier.width(4.dp))
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                shape = RoundedCornerShape(24.dp),
+                                color = MaterialTheme.colorScheme.secondaryContainer
+                            )
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.secondaryContainer.copy(0.2f),
+                                shape = RoundedCornerShape(24.dp   )
+                            )
+                            .padding(vertical = 2.dp, horizontal = 8.dp)
+                    ){
+                        Text(
+                            text = role,
+                            fontFamily = FontFamily(
+                                Font(
+                                    R.font.inter_regular,
+                                    FontWeight.Normal
+                                )
+                            ),
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
 
-                        fontSize = 10.sp
-                    )
                 }
-
             }
         }
         item{
             Spacer(modifier = Modifier.height(24.dp))
-            GreetingCard(user)
-        }
-        item{
-            Spacer(modifier = Modifier.height(24.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-
-                ){
-                MainCard(
-                    modifier = Modifier.weight(1f),
-                    icon = if(isDarkTheme) R.drawable.queuedark else R.drawable.queue,
-                    title = "Очереди",
-                    subtitle = "Вы не состоите в очереди",
+            QueueCard(
+                title = "Матан",
+                position = 3,
                     onClick = {
-                        tabNavController.navigate(NavigationItem.Queues.route){
-                            popUpTo(NavigationItem.Home.route){ saveState = true }
+                        tabNavController.navigate(NavigationItem.Queues.route) {
+                            popUpTo(NavigationItem.Home.route) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
                         }
                     }
-                )
-                Spacer(Modifier.width(12.dp))
-                MainCard(
-                    modifier = Modifier.weight(1f),
-                    icon = if(isDarkTheme) R.drawable.deadlinedark else R.drawable.deadline,
-                    title = "Дедлайны",
-                    subtitle = "Дедлайнов пока нет",
-                    onClick = {
-                        tabNavController.navigate(NavigationItem.Calendar.route){
-                            popUpTo(NavigationItem.Home.route){ saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                            }
-                    })
-
-            }
+            )
+            Spacer(Modifier.width(12.dp))
+            DeadlineCard(
+                title = "Физика",
+                days = 9,
+                onClick = {
+                    tabNavController.navigate(NavigationItem.Calendar.route){
+                        popUpTo(NavigationItem.Home.route){ saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
         }
         item{
             Spacer(modifier = Modifier.height(24.dp))
@@ -163,15 +230,10 @@ fun HomeTab(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ){
-                if(isDarkTheme) {
-                    Image(painter = painterResource(R.drawable.notificationsdark),
-                        contentDescription = "Объявления",
-                        modifier = Modifier.size(32.dp))
-                } else {
-                    Image(painter = painterResource(R.drawable.notifications),
-                        contentDescription = "Обявления",
-                        modifier = Modifier.size(32.dp))
-                }
+                Image(painter = painterResource(R.drawable.notifications),
+                    contentDescription = "Обявления",
+                    modifier = Modifier.size(20.dp))
+
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Объявления",
                     fontFamily = FontFamily(
@@ -220,20 +282,8 @@ fun HomeTab(
             )
             Spacer(modifier = Modifier.height(8.dp))
             NotificationCard(
-                "Перенос пар ⚠\uFE0F",
-                "Завтра первая пара отменяется, приходим ко второй (10:00). Не проспите!",
-                "Сегодня, 14:30"
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            NotificationCard(
-                "Перенос пар ⚠\uFE0F",
-                "Завтра первая пара отменяется, приходим ко второй (10:00). Не проспите!",
-                "Сегодня, 14:30"
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            NotificationCard(
-                "Перенос пар ⚠\uFE0F",
-                "Завтра первая пара отменяется, приходим ко второй (10:00). Не проспите!",
+                "Подойдите для подписи",
+                "Все в кабинет И-300!! Нужно срочно подписать бумаги",
                 "Сегодня, 14:30"
             )
         }
@@ -254,7 +304,7 @@ fun HomeTab(
                     Image(
                         painter = painterResource(R.drawable.deadline),
                         contentDescription = "События",
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(20.dp)
                     )
                 }
                 Spacer(Modifier.width(8.dp))
@@ -282,17 +332,23 @@ fun HomeTab(
         }
     }
 }
-
 @PreviewLightDark
 @Composable
 fun HomeTabPreview(){
     val navController = rememberNavController()
+    val fakeUser = User(
+        id = "1",
+        firstName = "Марат",
+        lastName = "Цой",
+        groupId = "ИКБО-31-24",
+        role = "starosta"
+    )
     KubikTheme {
         Surface(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
         ){
-            HomeTab(tabNavController = navController, innerPadding = PaddingValues(0.dp), false)
+            HomeTabContent(fakeUser, tabNavController = navController, innerPadding = PaddingValues(0.dp), "ИКБО-31-24")
         }
 
     }
