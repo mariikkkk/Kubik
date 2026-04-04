@@ -2,13 +2,12 @@ package com.example.kubik.domain.usecase
 
 import com.example.kubik.domain.models.User
 import com.example.kubik.domain.repository.AuthRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-// Получение юзера из Supabase
-class GetCurrentUserUseCase @Inject constructor(
+class GetUsersGroupUseCase @Inject constructor(
     private val authRepository: AuthRepository
-) {
-    suspend operator fun invoke(): Result<User?> {
-        return authRepository.getCurrentUser()
-    }
+){
+    suspend operator fun invoke(groupId: String): Flow<List<User>> = authRepository.getUsersGroup(groupId)
+
 }

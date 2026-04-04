@@ -92,9 +92,9 @@ fun HomeTab(
                 Icon(painter = painterResource(R.drawable.kubik),
                     contentDescription = "Иконка Кубика",
                     modifier = Modifier
-                        .size(64.dp)
-                        .offset(y = 5.dp),
+                        .size(48.dp),
                     tint = MaterialTheme.colorScheme.primary)
+                Spacer(Modifier.width(16.dp ))
                 Column(){
                     Text("КУБИК",
                         fontFamily =

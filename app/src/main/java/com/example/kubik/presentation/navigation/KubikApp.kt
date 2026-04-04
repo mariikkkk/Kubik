@@ -22,9 +22,11 @@ import com.example.kubik.di.SupabaseModule
 import com.example.kubik.domain.models.AppState
 import com.example.kubik.domain.models.AuthState
 import com.example.kubik.domain.models.ThemeMode
+import com.example.kubik.presentation.group.GroupScreen
 import com.example.kubik.presentation.home.HomeScreen
 import com.example.kubik.presentation.login.LoginScreen
 import com.example.kubik.presentation.onboarding.OnboardingScreen
+import com.example.kubik.presentation.onboarding.PendingScreen
 import com.example.kubik.presentation.theme.KubikTheme
 // ДОБАВЛЕНЫ ДВА ВАЖНЫХ ИМПОРТА ДЛЯ СТАТУСА
 import io.github.jan.supabase.gotrue.SessionStatus
@@ -38,6 +40,7 @@ fun KubikApp(mainViewModel: MainViewModel = hiltViewModel()){
         ThemeMode.LIGHT -> false
         ThemeMode.SYSTEM -> isSystemInDarkTheme()
     }
+    val groupName by mainViewModel.groupName.collectAsStateWithLifecycle()
     val appState by mainViewModel.appState.collectAsStateWithLifecycle()
     var startDestination by remember { mutableStateOf<String?>(null) }
     LaunchedEffect(appState) {
@@ -69,10 +72,17 @@ fun KubikApp(mainViewModel: MainViewModel = hiltViewModel()){
                             popUpTo("login") { inclusive = true }
                         }
                     }
+                    is AppState.Pending -> {
+                        if(globalNavController.currentDestination?.route != "pending"){
+                            globalNavController.navigate("pending") {
+                                popUpTo(globalNavController.graph.id) { inclusive = true }
+                            }
+                        }
+                    }
                     is AppState.Login -> {
                         if(globalNavController.currentDestination?.route != "login"){
                             globalNavController.navigate("login") {
-                                popUpTo(0) { inclusive = true }
+                                popUpTo(globalNavController.graph.id) { inclusive = true }
                             }
                         }
                     }
@@ -80,7 +90,7 @@ fun KubikApp(mainViewModel: MainViewModel = hiltViewModel()){
                         val currentRoute = globalNavController.currentDestination?.route
                         if(currentRoute != "home") {
                             globalNavController.navigate("home") {
-                                popUpTo(0) { inclusive = true }
+                                popUpTo(globalNavController.graph.id) { inclusive = true }
                             }
                         }
                     }
@@ -102,7 +112,22 @@ fun KubikApp(mainViewModel: MainViewModel = hiltViewModel()){
                     OnboardingScreen(
                         isDarkTheme = isDarkTheme,
                         onFinish = {
+
+                        }
+                    )
+                }
+                composable("pending"){
+                    PendingScreen(
+                        groupName = groupName,
+                        onRefreshClick = {
                             mainViewModel.checkUserStatus()
+                        },
+                        onExitClick = {
+                            mainViewModel.cancelRequestAndLogout {
+                                globalNavController.navigate("login") {
+                                    popUpTo("pending") { inclusive = true }
+                                }
+                            }
                         }
                     )
                 }
@@ -115,8 +140,14 @@ fun KubikApp(mainViewModel: MainViewModel = hiltViewModel()){
                             globalNavController.navigate("login") {
                                 popUpTo("home") { inclusive = true }
                             }
+                        },
+                        onNavigateToGroup = {
+                            globalNavController.navigate("group")
                         }
                     )
+                }
+                composable("group"){
+                    GroupScreen( onBackClick = { globalNavController.popBackStack() })
                 }
             }
         }

@@ -45,7 +45,9 @@ import com.example.kubik.presentation.theme.KubikTheme
 fun CustomDrawerContent(
     user: User?,
     groupName: String,
+    pendingCount: Int,
     onLogoutClick: () -> Unit,
+    onGroupClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onThemeChange: (ThemeMode) -> Unit,
     currentTheme: ThemeMode
@@ -60,6 +62,7 @@ fun CustomDrawerContent(
         "starosta" -> "Староста"
         else -> "Загрузка..."
     }
+    val isStarosta = user?.role == "starosta"
     ModalDrawerSheet(
         drawerContainerColor = MaterialTheme.colorScheme.primaryContainer,
         drawerContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -100,7 +103,7 @@ fun CustomDrawerContent(
                 fontSize = 20.sp
             )
             Text(
-                "$groupName • ${role }",
+                "$groupName • $role",
                 modifier = Modifier.padding(start = 16.dp),
                 fontFamily = FontFamily(
                     Font(
@@ -120,8 +123,8 @@ fun CustomDrawerContent(
             DrawMenuItem(
                 "Список группы",
                 painterResource(R.drawable.group),
-                {},
-                "2"
+                onGroupClick,
+                if(isStarosta && pendingCount > 0) pendingCount.toString() else null
             )
             DrawMenuItem(
                 "Настройки профиля",
@@ -173,8 +176,10 @@ fun PreviewCustomDrawerContent(){
     KubikTheme() {
         val isDarkTheme by remember { mutableStateOf(ThemeMode.DARK) }
         CustomDrawerContent(
-            User("1","Марат", "Цой"),
+            User("1","Марат", "Цой", role = "starosta"),
             "ИКБО-31-24",
+            2,
+            {},
             {},
             {},
             {},

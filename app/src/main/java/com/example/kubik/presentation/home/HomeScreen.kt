@@ -64,6 +64,7 @@ fun HomeScreen(
     currentTheme: ThemeMode,
     onThemeChange: (ThemeMode) -> Unit,
     onLogout: () -> Unit,
+    onNavigateToGroup: () -> Unit
 ){
     val isDarkTheme = when(currentTheme){
         ThemeMode.DARK -> true
@@ -80,6 +81,7 @@ fun HomeScreen(
         NavigationItem.Requests,
         NavigationItem.Files
     )
+    val pendingUsersCount by viewModel.pendingUsersCount.collectAsStateWithLifecycle()
     val user by viewModel.userState.collectAsStateWithLifecycle()
     val groupName by viewModel.groupName.collectAsStateWithLifecycle()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -93,8 +95,15 @@ fun HomeScreen(
                 CustomDrawerContent(
                     user = user,
                     groupName = groupName,
+                    pendingUsersCount,
                     {
                         viewModel.logout { onLogout() }
+                    },
+                    {
+                        scope.launch {
+                            drawerState.close()
+                        }
+                        onNavigateToGroup()
                     },
                     {
                         showEditDialog = true
@@ -138,7 +147,7 @@ fun HomeScreen(
                     },
                     scrollBehavior = scrollBehavior,
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.Transparent, // Прозрачная, когда мы наверху списка
+                        containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.8f), // Прозрачная, когда мы наверху списка
                         scrolledContainerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.95f) // Слегка заливаем цветом фона, когда текст едет под неё
                     )
                 )

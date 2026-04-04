@@ -1,5 +1,6 @@
 package com.example.kubik.presentation.onboarding
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.kubik.domain.models.Group
@@ -33,19 +34,33 @@ class OnboardingViewModel @Inject constructor(
     val availableGroups = _availableGroups.asStateFlow()
 
     init{
-        viewModelScope.launch {
-            _availableGroups.value = getAllGroupsUseCase()
-        }
+        loadGroup()
         fetchUserData()
+    }
+
+    private fun loadGroup(){
+        viewModelScope.launch {
+            val result = getAllGroupsUseCase()
+            result.onSuccess{ groups ->
+                _availableGroups.value = groups
+            }.onFailure{ e ->
+                Log.e("DEBUG_KUBIK", "Ошибка загрузки групп: ${e.message}")
+            }
+        }
     }
 
     private fun fetchUserData(){
         viewModelScope.launch {
-            val user = getCurrentUserUseCase()
-            if(user != null){
-                _firstName.value = user.firstName
-                _lastName.value = user.lastName
+            val userRes = getCurrentUserUseCase()
+            userRes.onSuccess { user ->
+                if(user != null){
+                    _firstName.value = user.firstName
+                    _lastName.value = user.lastName
+                }
+            }.onFailure { e ->
+                Log.e("DEBUG_KUBIK", "Ошибка загрузки данных пользователя: ${e.message}")
             }
+
         }
     }
 
@@ -58,35 +73,48 @@ class OnboardingViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             val selectedGroup = availableGroups.value.find { it.name.equals(groupName, ignoreCase = true) }
-            val user = getCurrentUserUseCase()
+            val userRes = getCurrentUserUseCase()
             if(selectedGroup == null){
                 onError("Группа не найдена! Проверьте правильность названия")
-            }
-            else if(user != null){
-                val result = registerStudentUseCase(user.id, _firstName.value, _lastName.value, selectedGroup.id)
-                if(result.isSuccess){
-                    onSuccess()
-            } else{
-                onError("Ощибка регистрации студента")
-            }
                 _isLoading.value = false
+                return@launch
             }
+            userRes.onSuccess { user ->
+                if(user != null){
+                    val result = registerStudentUseCase(user.id, _firstName.value, _lastName.value, selectedGroup.id)
+                    result.onSuccess {
+                        onSuccess()
+                    }.onFailure { exception ->
+                        onError("Ошибка регистрации студента: ${exception.message}")
+                    }
+                } else{
+                    onError("Ошибка получения данных пользователя")
+                }
+            }.onFailure { exception ->
+                onError("Сбой получения данных пользователя: ${exception.message}")
+            }
+            _isLoading.value = false
         }
 
     }
     fun submitStarosta(inviteCode: String, onSuccess: () -> Unit, onError: (String) -> Unit){
         viewModelScope.launch {
             _isLoading.value = true
-            val user = getCurrentUserUseCase()
-            if(user != null) {
-                val result = registerStarostaUseCase(user.id, _firstName.value, _lastName.value, inviteCode)
-                if (result.isSuccess) {
-                    onSuccess()
-                } else {
-                    onError("Ошибка регистрации старосты")
+            val userRes = getCurrentUserUseCase()
+            userRes.onSuccess { user ->
+                if(user != null) {
+                    val result = registerStarostaUseCase(user.id, _firstName.value, _lastName.value, inviteCode)
+                    result.onSuccess {
+                        onSuccess()
+                    }.onFailure { exception ->
+                        onError("Ошибка регистрации старосты: ${exception.message}")
+                    }
                 }
-                _isLoading.value = false
+            }.onFailure { exception ->
+                onError("Сбой получения данных пользователя: ${exception.message}")
             }
+            _isLoading.value = false
+
         }
 
     }
