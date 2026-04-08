@@ -7,7 +7,7 @@ class DeleteFileUseCase @Inject constructor(
     private val filesRepository: FilesRepository
 )
 {
-    suspend operator fun invoke(fileId: Int) {
-        filesRepository.deleteFile(fileId)
+    suspend operator fun invoke(fileId: Int, folderId: Int) {
+        filesRepository.deleteFile(fileId, folderId)
     }
 }

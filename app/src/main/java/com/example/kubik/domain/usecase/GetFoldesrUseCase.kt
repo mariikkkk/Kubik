@@ -8,6 +8,6 @@ import javax.inject.Inject
 class GetFoldersUseCase @Inject constructor(
     private val filesRepository: FilesRepository
 ) {
-    operator fun invoke(): Flow<List<FileFolderItem>> = filesRepository.getFolders()
+    operator fun invoke(groupId: String): Flow<List<FileFolderItem>> = filesRepository.getFolders(groupId)
 
 }

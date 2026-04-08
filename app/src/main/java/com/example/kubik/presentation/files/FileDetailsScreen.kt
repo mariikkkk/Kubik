@@ -52,6 +52,9 @@ import com.example.kubik.domain.models.FileFolderItem
 import com.example.kubik.domain.models.FileItem
 import com.example.kubik.presentation.files.components.CustomUploadDialog
 import com.example.kubik.presentation.files.components.FileCard
+import java.text.DecimalFormat
+import kotlin.math.log10
+import kotlin.math.pow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -251,6 +254,8 @@ fun FileDetailsScreen(
        }
     }
 }
+
+
 
 
 
