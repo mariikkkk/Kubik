@@ -22,11 +22,13 @@ import com.example.kubik.domain.usecase.DeleteFileUseCase
 import com.example.kubik.domain.usecase.DeleteFolderUseCase
 import com.example.kubik.domain.usecase.GetFilesUseCase
 import com.example.kubik.domain.usecase.GetFoldersUseCase
+import com.example.kubik.domain.usecase.GetUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -39,21 +41,40 @@ class FilesViewModel @Inject constructor(
     private val addFileUseCase: AddFileUseCase,
     private val deleteFileUseCase: DeleteFileUseCase,
     private val deleteFolderUseCase: DeleteFolderUseCase,
-    private val addFolderUseCase: AddFolderUseCase
+    private val addFolderUseCase: AddFolderUseCase,
+    private val getUserUseCase: GetUserUseCase
 ) : ViewModel() {
 
+    val currentUser = getUserUseCase().stateIn(
+        scope = viewModelScope,
+        started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
+        initialValue = null
+    )
 
     private val _isUploading = MutableStateFlow(false)                                       // StateFlow хранит в себе последнее значение (умеет сообщать об изменениях)
     val isUploading: StateFlow<Boolean> = _isUploading.asStateFlow()                                // Переменная для публичного просмотра. Записать ничего нельзя
 
     private var _firebaseFolders by mutableStateOf<List<FileFolderItem>>(emptyList())
+
     private val _firebaseFiles = MutableStateFlow<List<FileItem>>(emptyList())
     val firebaseFiles: StateFlow<List<FileItem>> = _firebaseFiles.asStateFlow()
 
     private var fileJob: Job? = null
+    private var folderJob: Job? = null
     init{
         viewModelScope.launch{
-            getFoldersUseCase().collect { foldersFromDb ->
+            currentUser.collect{ user ->
+                if(user != null && user.groupId != null){
+                    loadFolders(user.groupId)
+                }
+            }
+        }
+    }
+
+    private fun loadFolders(groupId: String){
+        folderJob?.cancel()
+        folderJob = viewModelScope.launch {
+            getFoldersUseCase(groupId).collect { foldersFromDb ->
                 _firebaseFolders = foldersFromDb
             }
         }
@@ -69,16 +90,16 @@ class FilesViewModel @Inject constructor(
     }
 
     fun addFile(fileName: String, category: FileCategory, folderId: Int, fileUri: Uri) {
+        val user = currentUser.value ?: return
         viewModelScope.launch {
             _isUploading.value = true                                                                               // Включение индикатор загрузки
             try{
-                addFileUseCase( fileName = fileName, category = category, folderId = folderId, fileUri)
+                addFileUseCase( fileName = fileName, category = category, folderId = folderId, fileUri = fileUri, currentUser = user)
             } catch (e: Exception){
                 e.printStackTrace()
             } finally {
                 _isUploading.value = false                                                                          // Загрузили - отключили
             }
-
         }
     }
 
@@ -101,16 +122,17 @@ class FilesViewModel @Inject constructor(
         selectedSemester = semester
     }
 
-    fun deleteFile(fileId: Int){
+    fun deleteFile(fileId: Int, folderId: Int){
         viewModelScope.launch {
-            deleteFileUseCase(fileId)
+            deleteFileUseCase(fileId, folderId)
         }
     }
 
     fun addFolder(folderName: String) {
-        val newId = (_firebaseFolders.maxOfOrNull { it.id } ?: 0) + 1
+        val user = currentUser.value ?: return
+        val groupId = user.groupId ?: ""
         viewModelScope.launch {
-            addFolderUseCase(folderName, selectedSemester, newId)
+            addFolderUseCase(folderName, selectedSemester, groupId)
         }
     }
     fun deleteFolder(folderId: Int){
