@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kubik.R
 import com.example.kubik.domain.models.QueueItem
-import com.example.kubik.domain.models.QueueSlot
+import com.example.kubik.domain.models.SlotItem
 import com.example.kubik.presentation.theme.KubikTheme
 
 @Composable
@@ -79,7 +79,7 @@ fun QueuesTab(innerPadding: PaddingValues ,viewModel: QueuesViewModel = viewMode
 }
 
 @Composable
-fun QueueSlotItem(slot: QueueSlot, onClick: () -> Unit){
+fun QueueSlotItem(slot: SlotItem, onClick: () -> Unit){
     val backgroundColor = when{
         slot.isMySlot -> MaterialTheme.colorScheme.primaryContainer
         slot.studentName != null -> MaterialTheme.colorScheme.surfaceVariant

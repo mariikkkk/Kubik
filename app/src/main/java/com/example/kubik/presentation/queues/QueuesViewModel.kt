@@ -3,7 +3,7 @@ package com.example.kubik.presentation.queues
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.example.kubik.domain.models.QueueItem
-import com.example.kubik.domain.models.QueueSlot
+import com.example.kubik.domain.models.SlotItem
 
 class QueuesViewModel: ViewModel() {
 
@@ -44,12 +44,12 @@ class QueuesViewModel: ViewModel() {
 
     val queueList: List<QueueItem> = _queueList
     private val _slots =
-        mutableStateListOf<QueueSlot>().apply { // внутренняя переменная, которую никто не может поменять
+        mutableStateListOf<SlotItem>().apply { // внутренняя переменная, которую никто не может поменять
             repeat(26) { i ->
-                add(QueueSlot(id = i + 1))
+                add(SlotItem(id = i + 1))
             }
         }
-    val slots: List<QueueSlot> =
+    val slots: List<SlotItem> =
         _slots // Экран видит только эту переменную. Все изменения должны проходить через функции
 
     fun toggleSlot(slotId: Int, queueId: Int) {                            // вызывается при клике по ячейке
@@ -89,18 +89,18 @@ class QueuesViewModel: ViewModel() {
         val newSlots = when (queueId) {
             1 -> {
                 (1..26).map {
-                    QueueSlot(it, if (it == 5) "Куликов" else null, isMySlot = false)
+                    SlotItem(it, if (it == 5) "Куликов" else null, isMySlot = false)
 
                 }
             }
             2 -> {
                 (1..26).map{
-                    QueueSlot(it, if (it % 2 == 0) "Бурцев" else null, isMySlot = false)
+                    SlotItem(it, if (it % 2 == 0) "Бурцев" else null, isMySlot = false)
                 }
             }
             else -> {
                 (1..26).map {
-                    QueueSlot(it, null, isMySlot = false)
+                    SlotItem(it, null, isMySlot = false)
                 }
             }
         }
