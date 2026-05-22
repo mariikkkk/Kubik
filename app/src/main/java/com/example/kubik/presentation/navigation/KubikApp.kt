@@ -15,9 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.kubik.di.SupabaseModule
 import com.example.kubik.domain.models.AppState
 import com.example.kubik.domain.models.AuthState
@@ -27,6 +29,7 @@ import com.example.kubik.presentation.home.HomeScreen
 import com.example.kubik.presentation.login.LoginScreen
 import com.example.kubik.presentation.onboarding.OnboardingScreen
 import com.example.kubik.presentation.onboarding.PendingScreen
+import com.example.kubik.presentation.queues.QueueDetailsScreen
 import com.example.kubik.presentation.theme.KubikTheme
 // ДОБАВЛЕНЫ ДВА ВАЖНЫХ ИМПОРТА ДЛЯ СТАТУСА
 import io.github.jan.supabase.gotrue.SessionStatus
