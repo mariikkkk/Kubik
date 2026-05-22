@@ -1,5 +1,6 @@
 package com.example.kubik.data
 
+import android.util.Log
 import com.example.kubik.BuildConfig
 import com.example.kubik.di.SupabaseModule
 import com.example.kubik.domain.models.AuthState
@@ -44,16 +45,32 @@ class SupabaseAuthRepositoryImpl @Inject constructor(
                         email = emailGen
                         password = passGen
                     }
-                } catch (e : Exception) {
-                    SupabaseModule.supabase.auth.signUpWith(Email) {
-                        email = emailGen
-                        password = passGen
-                        data = buildJsonObject {
-                            put("first_name", firstName)
-                            put("last_name", lastName)
-                            put("vk_id", userId)
+                } catch (e: Exception) {
+                    Log.e("KUBIK_AUTH", "Тип ошибки: ${e::class.simpleName}")
+                    Log.e("KUBIK_AUTH", "Сообщение: ${e.message}")
+                    Log.e("KUBIK_AUTH", "Причина: ${e.cause?.message}")
+                    when {
+                        // пользователь не найден — регистрируем
+                        e.message?.contains("Invalid login credentials") == true -> {
+                            SupabaseModule.supabase.auth.signUpWith(Email) {
+                                email = emailGen
+                                password = passGen
+                                data = buildJsonObject {
+                                    put("first_name", firstName)
+                                    put("last_name", lastName)
+                                    put("vk_id", userId)
+                                }
+                            }
                         }
-
+                        // таймаут — пробуем войти ещё раз
+                        e.message?.contains("timed out") == true -> {
+                            SupabaseModule.supabase.auth.signInWith(Email) {
+                                email = emailGen
+                                password = passGen
+                            }
+                        }
+                        // остальные ошибки — пробрасываем
+                        else -> throw e
                     }
                 }
                 session = SupabaseModule.supabase.auth.currentSessionOrNull()
