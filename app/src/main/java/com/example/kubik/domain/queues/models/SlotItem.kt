@@ -1,4 +1,4 @@
-package com.example.kubik.domain.models
+package com.example.kubik.domain.queues.models
 
 data class SlotItem(
     val slotNumber: Int = 0,                                // Номер места
