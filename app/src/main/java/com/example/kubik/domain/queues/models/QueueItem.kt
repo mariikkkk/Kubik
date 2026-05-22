@@ -1,4 +1,4 @@
-package com.example.kubik.domain.models
+package com.example.kubik.domain.queues.models
 
 data class QueueItem(
     val id: String = "",
@@ -9,7 +9,10 @@ data class QueueItem(
     val status: String = QueueStatus.WAITING.value,         // Статус: "waiting", "active", "closed"
     val totalSlots: Int = 0,                // Общее количество мест в очереди
     val currentActiveSlot: Int? = null,     // Кто сдает прямо сейчас
-    val creatorId: String = ""              // Id создателя очереди
+    val creatorId: String = "",              // Id создателя очереди
+    val participantIds: List<String> = emptyList(),  // Список всех Id в очереди
+    val submissionDate: Long? = null,                // Дата сдачи,
+    val userSlots: Map<String, Int> = emptyMap()    //  Словарь всех записавшихся
 ){
     val typedStatus: QueueStatus
         get() = QueueStatus.fromValue(status)

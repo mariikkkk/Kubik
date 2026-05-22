@@ -1,4 +1,4 @@
-package com.example.kubik.domain.models
+package com.example.kubik.domain.queues.models
 
 enum class QueueStatus(val value: String){
     WAITING("waiting"),
