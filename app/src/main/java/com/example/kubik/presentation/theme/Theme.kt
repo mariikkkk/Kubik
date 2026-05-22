@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = KubikPrimaryDark,
+    primary = KubikPrimary,
     background = KubikBackgroundDark,
     surface = SurfaceDark,
     onSurface = OnSurfaceTextDark,
@@ -29,7 +29,8 @@ private val DarkColorScheme = darkColorScheme(
     onTertiaryContainer = onTertiaryContainerDark,
     tertiary = tertiaryDark,
     onTertiary = onTertiaryDark,
-    onSecondaryContainer = onSecondaryContainerDark
+    onSecondaryContainer = onSecondaryContainerDark,
+    error = KubikAttentionDark
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -51,7 +52,8 @@ private val LightColorScheme = lightColorScheme(
     onSurfaceVariant = OnSurfaceVariantText,
     tertiaryContainer = tertiaryContainer,
     onTertiaryContainer = onTertiaryContainer,
-    onSecondaryContainer = onSecondaryContainer
+    onSecondaryContainer = onSecondaryContainer,
+    error = KubikAttention,
 )
 
 val LocalIsDarkTheme = compositionLocalOf { false }
