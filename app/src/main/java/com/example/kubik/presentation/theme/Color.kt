@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Color
 // =========================================
 val KubikPrimary = Color(0xFF4F39F6)            // Главный цвет в светлой теме
 val KubikPrimaryDark = Color(0xff7C86FF)        // Главный цвет в темной теме
-val KubikAttention = Color(0xFFFFE4E6)          // Цвет для фона знака предупреждения
+val KubikAttention = Color(0xFFFF2056)          // Цвет для фона знака предупреждения
 val KubikAttentionDark = Color(0xFFFF2056)
 
 // =========================================
@@ -63,7 +63,7 @@ val onSecondaryContainerDark = Color(0xFFCAD5E2)    // Текст для тем�
 // =========================================
 // 6. ГРАНИЦЫ И ОБВОДКИ (Borders & Outlines)
 // =========================================
-val Outlined = Color(0xFFF1F5F9)                // Обводка карточек (светлая)
+val Outlined = Color(0xFFE2E8F0)                // Обводка карточек (светлая)
 val OutlinedDark = Color(0xFF1D293D)            // Обводка карточек (темная)
 
 // =========================================
