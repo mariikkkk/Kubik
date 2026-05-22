@@ -69,16 +69,19 @@ import com.example.kubik.presentation.theme.LocalIsDarkTheme
 fun HomeTab(
     tabNavController: NavController,
     innerPadding: PaddingValues,
-    viewModel: ProfileViewModel = hiltViewModel()
+    viewModel: ProfileViewModel = hiltViewModel(),
+    homeViewModel: HomeViewModel = hiltViewModel()
 ){
     val user by viewModel.userState.collectAsStateWithLifecycle()
     val groupName by viewModel.groupName.collectAsStateWithLifecycle()
+    val nearestQueueCardState by homeViewModel.nearestQueue.collectAsStateWithLifecycle()
 
     HomeTabContent(
         user = user,
         tabNavController = tabNavController,
         innerPadding = innerPadding,
-        groupName
+        groupName = groupName,
+        nearestQueueCardState = nearestQueueCardState
     )
 }
 
@@ -87,7 +90,8 @@ fun HomeTabContent(
     user: User?,
     tabNavController: NavController,
     innerPadding: PaddingValues,
-    groupName: String
+    groupName: String,
+    nearestQueueCardState: NearestQueueCardState?
 ){
     val isDarkTheme = LocalIsDarkTheme.current
     val role = when(user?.role){
@@ -200,17 +204,17 @@ fun HomeTabContent(
         }
         item{
             Spacer(modifier = Modifier.height(24.dp))
-            QueueCard(
-                title = "Матан",
-                position = 3,
+            nearestQueueCardState?.let { queue ->
+                QueueCard(
+                    title = queue.title,
+                    position = queue.position,
                     onClick = {
-                        tabNavController.navigate(NavigationItem.Queues.route) {
-                            popUpTo(NavigationItem.Home.route) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        tabNavController.navigate(
+                            NavigationItem.QueueDetails.route(queue.queueId)
+                        )
                     }
-            )
+                )
+            }
             Spacer(Modifier.width(12.dp))
             DeadlineCard(
                 title = "Физика",
@@ -348,7 +352,16 @@ fun HomeTabPreview(){
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
         ){
-            HomeTabContent(fakeUser, tabNavController = navController, innerPadding = PaddingValues(0.dp), "ИКБО-31-24")
+            HomeTabContent(fakeUser,
+                tabNavController = navController,
+                innerPadding = PaddingValues(0.dp),
+                groupName = "ИКБО-31-24",
+                nearestQueueCardState = NearestQueueCardState(
+                    "",
+                    "Матан",
+                    3,
+                    System.currentTimeMillis()
+                ))
         }
 
     }
