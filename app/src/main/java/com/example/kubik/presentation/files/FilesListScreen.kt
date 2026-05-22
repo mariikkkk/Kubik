@@ -56,10 +56,12 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.example.kubik.R
 import com.example.kubik.domain.models.FileCategory
 import com.example.kubik.domain.models.FileFolderItem
+import com.example.kubik.presentation.components.SearchBar
 import com.example.kubik.presentation.files.components.CustomDeleteDialog
 import com.example.kubik.presentation.files.components.CustomFolderDialog
 import com.example.kubik.presentation.files.components.CustomUploadDialog
@@ -79,7 +81,7 @@ fun FilesListScreen(
     onAddFolderClick: (String) -> Unit,
     onDeleteFolderSwipe: (Int) -> Unit
 ) {
-    var expaneded by remember { mutableStateOf(false) } // Состояние для открытия/закрытия списка семестров
+    var expanded by remember { mutableStateOf(false) } // Состояние для открытия/закрытия списка семестров
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var isFabExpanded by remember { mutableStateOf(false) }
     var showAddFolderDialog by remember { mutableStateOf(false )}
@@ -122,7 +124,7 @@ fun FilesListScreen(
                             .clip(RoundedCornerShape(8.dp))
                             .background(MaterialTheme.colorScheme.surfaceVariant)
                             .padding(horizontal = 12.dp, vertical = 6.dp)
-                            .clickable { expaneded = true },
+                            .clickable { expanded = true },
 
                         verticalAlignment = Alignment.CenterVertically
                     )
@@ -142,8 +144,8 @@ fun FilesListScreen(
                     }
 
                     DropdownMenu(
-                        expanded = expaneded,
-                        onDismissRequest = { expaneded = false },
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
                         Modifier.heightIn(max = 250.dp)
                     ){
                         for (semester in 1..12){
@@ -151,7 +153,7 @@ fun FilesListScreen(
                                 text = { Text("$semester семестр") },
                                 onClick = {
                                     onSemesterChange(semester)
-                                    expaneded = false
+                                    expanded = false
                                 }
                             )
                         }
@@ -177,44 +179,11 @@ fun FilesListScreen(
 //            }
             }
             Spacer(modifier = Modifier.height(10.dp))
-            BasicTextField(
-                value = searchQuery,
-                onValueChange = onSearchQueryChange,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(40.dp),
-                textStyle = MaterialTheme.typography.bodyMedium,
-                singleLine = true,
-                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                decorationBox = { innerTextField ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha=0.5f))
-                            .padding(horizontal = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ){
-                        Icon(
-                            Icons.Default.Search,
-                            contentDescription = "Поиск",
-                            modifier = Modifier.size(20.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        Box(modifier = Modifier.weight(1f)){
-                            if(searchQuery.isEmpty()){
-                                Text("Поиск файлов...",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha=0.5f)
-                                )
-                            }
-                            innerTextField()
-                        }
-                    }
-                }
-
+            SearchBar(
+                searchQuery,
+                onSearchQueryChange,
+                "Поиск по названию...",
+                Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -388,7 +357,7 @@ fun FilesListScreen(
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLightDark
 @Composable
 fun GreetingPreview() {
     KubikTheme {
