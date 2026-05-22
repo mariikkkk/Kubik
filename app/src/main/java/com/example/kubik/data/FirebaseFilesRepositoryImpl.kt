@@ -83,7 +83,7 @@ class FirebaseFilesRepositoryImpl @Inject constructor
                 for (document in documents){
                     document.reference.delete()
                 }
-            }
+            }.await()
 
     }
 
@@ -165,7 +165,7 @@ class FirebaseFilesRepositoryImpl @Inject constructor
                 for (document in documents){
                     document.reference.delete()
                 }
-            }
+            }.await()
         val folderQuery = firestore.collection("folders").whereEqualTo("id", folderId).get().await()
         for (document in folderQuery.documents){
             document.reference.update(
