@@ -45,13 +45,16 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.example.kubik.R
 import com.example.kubik.domain.models.FileCategory
 import com.example.kubik.domain.models.FileFolderItem
 import com.example.kubik.domain.models.FileItem
+import com.example.kubik.presentation.components.FilterTabs
 import com.example.kubik.presentation.files.components.CustomUploadDialog
 import com.example.kubik.presentation.files.components.FileCard
+import com.example.kubik.presentation.theme.KubikTheme
 import java.text.DecimalFormat
 import kotlin.math.log10
 import kotlin.math.pow
@@ -174,41 +177,12 @@ fun FileDetailsScreen(
             )
             Spacer(modifier = Modifier.height(12.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                FileCategory.entries.forEach { categoryEnum ->
-                    val isSelected = selectedCategory == categoryEnum
-
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(
-                                if (isSelected) MaterialTheme.colorScheme.primary
-                                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                            )
-                            .clickable { selectedCategory = categoryEnum }
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        contentAlignment = Alignment.Center
-
-                    )
-                    {
-                        Text(
-                            categoryEnum.title,
-                            color = if (isSelected) MaterialTheme.colorScheme.onPrimary
-                            else MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                        )
-                    }
-                    Spacer(Modifier.width(8.dp))
-
-                }
-            }
+            FilterTabs(
+                entries = FileCategory.entries,
+                selectedItem = selectedCategory,
+                onItemClick = { selectedCategory = it },
+                itemTitle = { it.title }
+            )
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -252,6 +226,25 @@ fun FileDetailsScreen(
                         //showAddDialog = false
             })
        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun previewFileDetails(){
+    KubikTheme() {
+        FileDetailsScreen(
+            1,
+            "Матан",
+            listOf(),
+            innerPadding = PaddingValues(0.dp),
+            onBackClick = {},
+            onAddFileClick = {s,d,u ->},
+            onDeleteFileClick = {},
+            onDownloadFileClick = {s,s2 ->},
+            onRenameFileClick = {i,s ->},
+            onShareFileClick = {s,s2 ->}
+        )
     }
 }
 
