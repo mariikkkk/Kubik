@@ -40,10 +40,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.kubik.R
 import com.example.kubik.di.SupabaseModule
 import com.example.kubik.domain.models.ThemeMode
@@ -51,7 +53,9 @@ import com.example.kubik.presentation.files.FilesTab
 import com.example.kubik.presentation.home.components.CustomDrawerContent
 import com.example.kubik.presentation.home.components.CustomRenameProfileDialog
 import com.example.kubik.presentation.navigation.NavigationItem
-import com.example.kubik.presentation.queues.QueuesTab
+import com.example.kubik.presentation.queues.QueueDetailsScreen
+import com.example.kubik.presentation.queues.QueuesListScreen
+//import com.example.kubik.presentation.queues.QueuesTab
 import com.example.kubik.presentation.theme.KubikTheme
 import io.github.jan.supabase.gotrue.auth
 import kotlinx.coroutines.launch
@@ -195,7 +199,11 @@ fun HomeScreen(
                     HomeTab(tabNavController, innerPadding)
                 }
                 composable(NavigationItem.Queues.route) {
-                    QueuesTab(innerPadding)
+                    QueuesListScreen(
+                        innerPadding = innerPadding,
+                        onQueueClick = { queueId ->
+                            tabNavController.navigate(NavigationItem.QueueDetails.route(queueId))
+                        })
                 }
                 composable(NavigationItem.Calendar.route){
                     CalendarTab()
@@ -205,6 +213,17 @@ fun HomeScreen(
                 }
                 composable(NavigationItem.Requests.route) {
                     RequestsTab()
+                }
+                composable(
+                    route = NavigationItem.QueueDetails.route,
+                    arguments = listOf(navArgument("queueId") { type = NavType.StringType })
+                ) {
+                    QueueDetailsScreen(
+                        innerPadding = innerPadding,
+                        onBackClick = {
+                            tabNavController.popBackStack()
+                        }
+                    )
                 }
 
             }
