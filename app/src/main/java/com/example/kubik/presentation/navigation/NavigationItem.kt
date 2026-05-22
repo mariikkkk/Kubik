@@ -13,5 +13,8 @@ sealed class NavigationItem(val route: String, val icon: ImageVector? = null, va
     object Calendar: NavigationItem("calendar", Icons.Default.DateRange, title = "Календарь")
     object Requests: NavigationItem("questions", iconId = R.drawable.message, title = "Вопросы")
     object Files   : NavigationItem("files", iconId = R.drawable.file, title = "Файлы")
+    object QueueDetails: NavigationItem("queue_details/{queueId}", title = "Очередь"){
+        fun route(queueId: String) = "queue_details/$queueId"
+    }
 
 }
