@@ -1,9 +1,7 @@
 package com.example.kubik.presentation.queues.components
 
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -20,15 +18,16 @@ fun QueueSlotsList(
     onLeaveClick: (Int) -> Unit,
     queueStatus: QueueStatus
 ) {
-    LazyColumn {
-        items(slots) { item ->
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        slots.forEach { item ->
             SlotCard(
                 item = item,
                 onSlotClick = onSlotClick,
                 onLeaveClick = onLeaveClick,
                 queueStatus = queueStatus
             )
-            Spacer(Modifier.height(8.dp))
         }
     }
 }
