@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -162,7 +163,11 @@ fun QueueDetailsScreenContent(
                 end = 16.dp
             )
         ){
-        Column {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 140.dp)
+        ) {
+            item {
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -208,41 +213,54 @@ fun QueueDetailsScreenContent(
                     )
                 }
             }
-            Spacer(Modifier.height(16.dp))
-            if (queue != null) {
-                QueueDetailsInfoCard(
-                    queue = queue,
-                    isStarosta = isStarosta,
-                    myWaitingSlot = myWaitingSlot,
-                    onPassedClick = onPassedClick,
-                    onFailedClick = onFailedClick,
-                    onLeaveClick = {
-                        myWaitingSlot?.let { onLeaveClick(it.slotNumber) }
-                    },
-                    onStartClick = onStartClick,
-                    onCloseClick = onCloseClick
+            }
+            item {
+                Spacer(Modifier.height(16.dp))
+            }
+            item {
+                if (queue != null) {
+                    QueueDetailsInfoCard(
+                        queue = queue,
+                        isStarosta = isStarosta,
+                        myWaitingSlot = myWaitingSlot,
+                        onPassedClick = onPassedClick,
+                        onFailedClick = onFailedClick,
+                        onLeaveClick = {
+                            myWaitingSlot?.let { onLeaveClick(it.slotNumber) }
+                        },
+                        onStartClick = onStartClick,
+                        onCloseClick = onCloseClick
+                    )
+                }
+            }
+            item {
+                Spacer(Modifier.height(16.dp))
+            }
+            item {
+                Text(
+                    "Список очереди",
+                    fontFamily = FontFamily(
+                        Font(
+                            R.font.inter_semibold,
+                            FontWeight.SemiBold
+                        )
+                    ),
+                    fontSize = 18.sp,
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
-            Spacer(Modifier.height(16.dp))
-            Text(
-                "Список очереди",
-                fontFamily = FontFamily(
-                    Font(
-                        R.font.inter_semibold,
-                        FontWeight.SemiBold
+            item {
+                Spacer(Modifier.height(16.dp))
+            }
+            item {
+                if (queue != null) {
+                    QueueSlotsList(
+                        slots = slots,
+                        onSlotClick = onSlotClick,
+                        onLeaveClick = onLeaveClick,
+                        queueStatus = queue.typedStatus
                     )
-                ),
-                fontSize = 18.sp,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            Spacer(Modifier.height(16.dp))
-            if(queue != null){
-                QueueSlotsList(
-                    slots = slots,
-                    onSlotClick = onSlotClick,
-                    onLeaveClick = onLeaveClick,
-                    queueStatus = queue.typedStatus
-                )
+                }
             }
         }
     }

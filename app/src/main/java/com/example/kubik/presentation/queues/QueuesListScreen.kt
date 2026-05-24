@@ -138,7 +138,7 @@ fun QueuesListScreenContent(
             Spacer(modifier = Modifier.height(16.dp))
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(bottom = 80.dp)
+                contentPadding = PaddingValues(bottom = 140.dp)
             ) {
                 items(items = filteredQueues){ item ->
                     QueueItemCard(item,
@@ -151,7 +151,7 @@ fun QueuesListScreenContent(
                 onClick = onFabClick,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(bottom = 16.dp, end = 0.dp)
+                    .padding(bottom = 106.dp, end = 0.dp)
                     .glow(
                         MaterialTheme.colorScheme.primary,
                         1f,

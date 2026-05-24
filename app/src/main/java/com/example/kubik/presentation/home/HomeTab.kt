@@ -108,7 +108,7 @@ fun HomeTabContent(
             top = innerPadding.calculateTopPadding(),
             start = 16.dp,
             end = 16.dp,
-            bottom = innerPadding.calculateBottomPadding() + 16.dp
+            bottom = innerPadding.calculateBottomPadding() + 100.dp
         ),
     ) {
 

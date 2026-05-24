@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -52,6 +53,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -66,6 +68,7 @@ import com.example.kubik.presentation.files.components.CustomDeleteDialog
 import com.example.kubik.presentation.files.components.CustomFolderDialog
 import com.example.kubik.presentation.files.components.CustomUploadDialog
 import com.example.kubik.presentation.theme.KubikTheme
+import com.example.kubik.presentation.theme.glow
 
 @Composable
 fun FilesListScreen(
@@ -187,7 +190,9 @@ fun FilesListScreen(
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(bottom = 140.dp)) {
                 items(filesFolders, key = { it.id }) { item ->
                         val dismissState = rememberSwipeToDismissBoxState(
                             positionalThreshold = { totalDistance -> totalDistance * 0.3f},
@@ -277,7 +282,7 @@ fun FilesListScreen(
             horizontalAlignment = Alignment.End,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(end = 16.dp, bottom = 16.dp)
+                .padding(end = 16.dp, bottom = 104.dp)
         ) {
             AnimatedVisibility(isFabExpanded) {
                 Column(
@@ -313,12 +318,22 @@ fun FilesListScreen(
                 }
             }
             FloatingActionButton(
-                onClick = { isFabExpanded = !isFabExpanded }
+                onClick = { isFabExpanded = !isFabExpanded },
+                modifier = Modifier
+                    .glow(
+                        MaterialTheme.colorScheme.primary,
+                        1f,
+                        30.dp,
+                        15.dp
+                    ),
+                shape = CircleShape,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = Color.White
             ){
                 Icon(
                     imageVector = if (isFabExpanded) Icons.Default.KeyboardArrowDown else Icons.Default.Add,
-                    contentDescription = "Действия"
-
+                    contentDescription = "Добавить очередь",
+                    modifier = Modifier.size(24.dp)
                 )
             }
         }
