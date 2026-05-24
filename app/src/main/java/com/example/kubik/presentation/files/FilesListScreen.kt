@@ -282,7 +282,7 @@ fun FilesListScreen(
             horizontalAlignment = Alignment.End,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(end = 16.dp, bottom = 104.dp)
+                .padding(bottom = 104.dp)
         ) {
             AnimatedVisibility(isFabExpanded) {
                 Column(
