@@ -1,5 +1,6 @@
 package com.example.kubik.data
 
+import android.util.Log
 import com.example.kubik.BuildConfig
 import com.example.kubik.di.SupabaseModule
 import com.example.kubik.domain.models.AuthState
@@ -10,6 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import io.github.jan.supabase.gotrue.SessionStatus
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.providers.builtin.Email
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
@@ -43,16 +45,32 @@ class SupabaseAuthRepositoryImpl @Inject constructor(
                         email = emailGen
                         password = passGen
                     }
-                } catch (e : Exception) {
-                    SupabaseModule.supabase.auth.signUpWith(Email) {
-                        email = emailGen
-                        password = passGen
-                        data = buildJsonObject {
-                            put("first_name", firstName)
-                            put("last_name", lastName)
-                            put("vk_id", userId)
+                } catch (e: Exception) {
+                    Log.e("KUBIK_AUTH", "Тип ошибки: ${e::class.simpleName}")
+                    Log.e("KUBIK_AUTH", "Сообщение: ${e.message}")
+                    Log.e("KUBIK_AUTH", "Причина: ${e.cause?.message}")
+                    when {
+                        // пользователь не найден — регистрируем
+                        e.message?.contains("Invalid login credentials") == true -> {
+                            SupabaseModule.supabase.auth.signUpWith(Email) {
+                                email = emailGen
+                                password = passGen
+                                data = buildJsonObject {
+                                    put("first_name", firstName)
+                                    put("last_name", lastName)
+                                    put("vk_id", userId)
+                                }
+                            }
                         }
-
+                        // таймаут — пробуем войти ещё раз
+                        e.message?.contains("timed out") == true -> {
+                            SupabaseModule.supabase.auth.signInWith(Email) {
+                                email = emailGen
+                                password = passGen
+                            }
+                        }
+                        // остальные ошибки — пробрасываем
+                        else -> throw e
                     }
                 }
                 session = SupabaseModule.supabase.auth.currentSessionOrNull()
@@ -77,8 +95,8 @@ class SupabaseAuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getCurrentUser(): User? {
-        val session = SupabaseModule.supabase.auth.currentSessionOrNull() ?: return null
+    override suspend fun getCurrentUser(): Result<User?> = runCatching {
+        val session = SupabaseModule.supabase.auth.currentSessionOrNull() ?: return@runCatching null
         val metadata = session?.user?.userMetadata
         val firstName = metadata?.get("first_name").toString().replace("\"", "")
         val lastName = metadata?.get("last_name").toString().replace("\"", "")
@@ -90,19 +108,15 @@ class SupabaseAuthRepositoryImpl @Inject constructor(
             groupId = null,
             role = "Студент"
         )
-        return user
+        user
     }
 
     override suspend fun checkHasCurrentSession(): Boolean {
         return SupabaseModule.supabase.auth.currentSessionOrNull() != null
     }
 
-    override suspend fun logout() {
-        try{
-            SupabaseModule.supabase.auth.signOut()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+    override suspend fun logout(): Result<Unit> = runCatching {
+        SupabaseModule.supabase.auth.signOut()
     }
 
     override fun observeAuthState(): Flow<AuthState> {
@@ -117,8 +131,7 @@ class SupabaseAuthRepositoryImpl @Inject constructor(
 
     }
 
-    override suspend fun updateUserProfile(firstName: String, lastName: String) {
-        try{
+    override suspend fun updateUserProfile(firstName: String, lastName: String): Result<Unit> = runCatching {
             val session = SupabaseModule.supabase.auth.currentSessionOrNull()
             val userId = session?.user?.id ?: ""
             SupabaseModule.supabase.auth.modifyUser {
@@ -133,33 +146,20 @@ class SupabaseAuthRepositoryImpl @Inject constructor(
                     "lastName" to lastName
                 )
             ).await()
-        }catch (e: Exception){
-            e.printStackTrace()
-        }
     }
 
-    override suspend fun getAllGroups(): List<Group> {
-        return try{
+    override suspend fun getAllGroups(): Result<List<Group>> = runCatching {
             val snapshot = firestore.collection("groups").get().await()
             snapshot.toObjects(Group::class.java)
-        } catch (e: Exception){
-            emptyList<Group>()
-        }
-
     }
 
-    override suspend fun getUserProfileFromFirestore(userId: String): User? {
-        return try{
+    override suspend fun getUserProfileFromFirestore(userId: String): Result<User?> = runCatching {
             val document = firestore.collection("users").document(userId).get().await()
             if(document.exists()){
                 document.toObject(User::class.java)
             } else {
                 null
             }
-        } catch (e: Exception){
-            null
-        }
-
     }
 
     override suspend fun registerStudent(
@@ -207,13 +207,57 @@ class SupabaseAuthRepositoryImpl @Inject constructor(
         }.await()
     }
 
-    override suspend fun getGroupById(groupId: String): Group? {
-        return try{
-            val document = firestore.collection("groups").document(groupId).get().await()
-            document.toObject(Group::class.java)
-        } catch (e: Exception){
-            null
+    override suspend fun getGroupById(groupId: String): Result<Group?> = runCatching {
+        val document = firestore.collection("groups").document(groupId).get().await()
+        document.toObject(Group::class.java)
+    }
+
+    override suspend fun getUsersGroup(groupId: String): Flow<List<User>> = callbackFlow {
+        val collection = firestore.collection("users")
+        val listener =
+            collection.whereEqualTo("groupId", groupId).addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val users = snapshot.documents.mapNotNull { it.toObject(User::class.java) }
+                    trySend(users)
+                }
+            }
+        awaitClose {
+            listener.remove()
         }
     }
 
+    override suspend fun approveStudent(userId: String): Result<Unit> = runCatching{
+        firestore.collection("users").document(userId).update("status", "approved").await()
+    }
+
+    override suspend fun removeStudent(userId: String): Result<Unit> = runCatching{
+        firestore.collection("users")
+            .document(userId)
+            .update(
+                "groupId", null
+            )
+            .await()
+    }
+
+    override fun observeUserProfile(userId: String): Flow<User?> = callbackFlow{
+        val collection = firestore.collection("users").document(userId)
+        val listener =
+            collection.addSnapshotListener { value, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                if (value != null && value.exists()) {
+                    val user = value.toObject(User::class.java)
+                    trySend(user)
+                } else{
+                    trySend(null)
+                }
+            }
+        awaitClose { listener.remove() }
+    }
 }

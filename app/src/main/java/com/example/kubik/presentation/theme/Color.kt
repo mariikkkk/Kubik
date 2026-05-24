@@ -7,11 +7,13 @@ import androidx.compose.ui.graphics.Color
 // =========================================
 val KubikPrimary = Color(0xFF4F39F6)            // Главный цвет в светлой теме
 val KubikPrimaryDark = Color(0xff7C86FF)        // Главный цвет в темной теме
+val KubikAttention = Color(0xFFFF2056)          // Цвет для фона знака предупреждения
+val KubikAttentionDark = Color(0xFFFF2056)
 
 // =========================================
 // 2. ФОН ПРИЛОЖЕНИЯ (Backgrounds)
 // =========================================
-val KubikBackground = Color(0xFFFFFFFF)         // Фон приложения в светлой теме
+val KubikBackground = Color(0xFFF8FAFC)         // Фон приложения в светлой теме
 val KubikBackgroundDark = Color(0xFF020618)     // Фон приложения в темной теме
 
 // =========================================
@@ -31,6 +33,9 @@ val secondaryContainer = Color(0xFFF1F5F9)      // Вторичный конте
 val secondaryContainerDark = Color(0xFF1D293D)  // Вторичный контейнер (темная)
 val tertiaryContainer = Color(0xFF2B7FFF)          // Вариант поверхности (светлая)
 val tertiaryContainerDark = Color(0xFF2B7FFF)      // Вариант поверхности (темная)
+val tabContainer = Color(0xFFFFFFFF)
+val tabContainerDark = Color(0xFF314158)
+
 
 // =========================================
 // 5. ТЕКСТ (Typography)
@@ -47,13 +52,18 @@ val onTertiaryContainer = Color(0xFF1C398E)         // Текст для све�
 val onTertiaryContainerDark = Color(0xFFBEDBFF)     // Текст для темной темы на фоне пояснений
 val onTertiary = Color(0xFF62748E)                  // Текст для светлой темы на фоне неактивных карточек
 val onTertiaryDark = Color(0xFF62748E)              // Текст для темной темы на фоне неактивных карточек
+val onSecondaryContainer = Color(0xFF45556C)        // Текст для светлой темы на фоне аватарки
+val onSecondaryContainerDark = Color(0xFFCAD5E2)    // Текст для темной темы на фоне аватарки
+
+
+
 
 
 
 // =========================================
 // 6. ГРАНИЦЫ И ОБВОДКИ (Borders & Outlines)
 // =========================================
-val Outlined = Color(0xFFF1F5F9)                // Обводка карточек (светлая)
+val Outlined = Color(0xFFE2E8F0)                // Обводка карточек (светлая)
 val OutlinedDark = Color(0xFF1D293D)            // Обводка карточек (темная)
 
 // =========================================

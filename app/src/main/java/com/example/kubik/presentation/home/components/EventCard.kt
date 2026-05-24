@@ -2,6 +2,7 @@ package com.example.kubik.presentation.home.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,16 +45,17 @@ fun EventCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(80.dp),
+            .heightIn(80.dp)
+            .clickable{ onClick() },
         shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.2f.dp, MaterialTheme.colorScheme.outline),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        border = BorderStroke(0.7f.dp, MaterialTheme.colorScheme.outline),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ){
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(80.dp)
-                .background(MaterialTheme.colorScheme.surface)
+                .background(MaterialTheme.colorScheme.background)
         ){
             Row(
                 modifier = Modifier

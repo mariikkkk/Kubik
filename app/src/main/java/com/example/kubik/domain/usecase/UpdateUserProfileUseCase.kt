@@ -9,13 +9,16 @@ class UpdateUserProfileUseCase @Inject constructor(
     private val getUserUseCase: GetUserUseCase,
     private val saveUserUseCase: SaveUserUseCase
 ) {
-    suspend operator fun invoke(firstName: String, lastName: String) {
-        authRepository.updateUserProfile(firstName, lastName)
-        val currentUser = getUserUseCase().firstOrNull()
+    suspend operator fun invoke(firstName: String, lastName: String): Result<Unit> {
+        val res = authRepository.updateUserProfile(firstName, lastName)
+        res.onSuccess {
+            val currentUser = getUserUseCase().firstOrNull()
 
-        if(currentUser != null){
-            val updatedUser = currentUser.copy(firstName = firstName, lastName = lastName)
-            saveUserUseCase(updatedUser)
+            if(currentUser != null){
+                val updatedUser = currentUser.copy(firstName = firstName, lastName = lastName)
+                saveUserUseCase(updatedUser)
+            }
         }
+        return res
     }
 }

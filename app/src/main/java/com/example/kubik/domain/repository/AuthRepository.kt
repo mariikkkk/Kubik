@@ -7,17 +7,21 @@ import kotlinx.coroutines.flow.Flow
 
 interface AuthRepository {
     suspend fun loginWithVK(userId: Long, firstName: String, lastName: String): Result<User>
-    suspend fun getCurrentUser(): User?
+    suspend fun getCurrentUser(): Result<User?>
     suspend fun checkHasCurrentSession(): Boolean
-    suspend fun logout()
+    suspend fun logout(): Result<Unit>
     fun observeAuthState(): Flow<AuthState> // Поток статусов для NavHost
-    suspend fun updateUserProfile(firstName: String, lastName: String)
+    suspend fun updateUserProfile(firstName: String, lastName: String): Result<Unit>
 
     // Методы для онбординга и firestore
-    suspend fun getAllGroups(): List<Group>
-    suspend fun getUserProfileFromFirestore(userId: String): User?
+    suspend fun getAllGroups(): Result<List<Group>>
+    suspend fun getUserProfileFromFirestore(userId: String): Result<User?>
     suspend fun registerStudent(userId: String, firstName: String, lastName: String, groupId: String): Result<Unit>
     suspend fun registerStarosta(userId: String, firstName: String, lastName: String, inviteCode: String): Result<Unit>
-    suspend fun getGroupById(groupId: String): Group?
+    suspend fun getGroupById(groupId: String): Result<Group?>
+    suspend fun getUsersGroup(groupId: String): Flow<List<User>>
+    suspend fun approveStudent(userId: String): Result<Unit>
+    suspend fun removeStudent(userId: String): Result<Unit>
+    fun observeUserProfile(userId: String): Flow<User?>
 
 }

@@ -24,7 +24,7 @@ fun DocumentSnapshot.toFileItem(): FileItem?{
         val id = getLong("id")?.toInt() ?: return null
         val folderId = getLong("folderId")?.toInt() ?: return null
         val name = getString("name") ?: return null
-        val size = getString("size") ?: "0 MB"
+        val size = getLong("size") ?: 0L
         val date = getString("date") ?: ""
         val author = getString("author") ?: ""
         val typeString = getString("type") ?: FileType.PDF.name

@@ -45,6 +45,9 @@ import com.example.kubik.domain.models.FileCategory
 import com.example.kubik.domain.models.FileItem
 import com.example.kubik.domain.models.FileType
 import com.example.kubik.presentation.theme.KubikTheme
+import java.text.DecimalFormat
+import kotlin.math.log10
+import kotlin.math.pow
 
 @Composable
 fun FileCard(
@@ -96,7 +99,7 @@ fun FileCard(
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "${file.size} | ${file.date} | ${file.author}",
+                    text = "${formatFileSize(file.size)} | ${file.date} | ${file.author}",
                     style = MaterialTheme.typography.bodyMedium,
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -190,6 +193,15 @@ fun FileCard(
     }
 }
 
+fun formatFileSize(sizeInBytes: Long): String {
+    if (sizeInBytes <= 0) return "0 Б"
+    val units = arrayOf("Б", "КБ", "МБ", "ГБ", "ТБ")
+    val digitGroups = (log10(sizeInBytes.toDouble()) / log10(1024.0)).toInt()
+    return DecimalFormat("#,##0.#").format(
+        sizeInBytes / 1024.0.pow(digitGroups.toDouble())
+    ) + " " + units[digitGroups]
+}
+
 @Preview(showBackground = true)
 @Composable
 fun FileCardPreview() {
@@ -199,7 +211,7 @@ fun FileCardPreview() {
                 1,
                 1,
                 "Лекция №1",
-                "2.5 MB",
+                100L,
                 FileType.PDF,
                 "01.02.2024",
                 "Иванов И.И.",

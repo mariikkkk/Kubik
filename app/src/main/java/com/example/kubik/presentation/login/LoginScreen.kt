@@ -127,11 +127,11 @@ fun LoginScreen(
                 painter = painterResource(id = R.drawable.kubik),
                 contentDescription = "Логотип",
                 modifier = Modifier
-                    .size(120.dp)
+                    .size(96.dp)
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                "КУБик",
+                "КУБИК",
                 color = Color.White,
                 fontFamily = FontFamily(
                     Font(R.font.inter_black, FontWeight.Normal)
