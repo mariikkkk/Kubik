@@ -215,18 +215,18 @@ fun HomeTabContent(
                     }
                 )
             }
-            Spacer(Modifier.width(12.dp))
-            DeadlineCard(
-                title = "Физика",
-                days = 9,
-                onClick = {
-                    tabNavController.navigate(NavigationItem.Calendar.route){
-                        popUpTo(NavigationItem.Home.route){ saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
-            )
+//            Spacer(Modifier.width(12.dp))
+//            DeadlineCard(
+//                title = "Физика",
+//                days = 9,
+//                onClick = {
+//                    tabNavController.navigate(NavigationItem.Calendar.route){
+//                        popUpTo(NavigationItem.Home.route){ saveState = true }
+//                        launchSingleTop = true
+//                        restoreState = true
+//                    }
+//                }
+//            )
         }
         item{
             Spacer(modifier = Modifier.height(24.dp))
@@ -291,49 +291,49 @@ fun HomeTabContent(
                 "Сегодня, 14:30"
             )
         }
-        item{
-            Spacer(modifier = Modifier.height(24.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ){
-                if(isDarkTheme) {
-                    Image(
-                        painter = painterResource(R.drawable.deadlinedark),
-                        contentDescription = "События",
-                        modifier = Modifier.size(32.dp)
-                    )
-                } else{
-                    Image(
-                        painter = painterResource(R.drawable.deadline),
-                        contentDescription = "События",
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-                Spacer(Modifier.width(8.dp))
-                Text("События",
-                    fontFamily = FontFamily(
-                        Font(R.font.inter_bold, FontWeight.Bold)
-                    ),
-                    fontSize = 18.sp,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Spacer(Modifier.weight(1f))
-                Text("Все",
-                    fontFamily = FontFamily(
-                        Font(R.font.inter_medium, FontWeight.Normal)
-                    ),
-                    fontSize = 14.sp,
-                    modifier = Modifier.clickable {  },
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
-        item{
-            Spacer(modifier = Modifier.height(8.dp))
-            EventCard("Контрольная по матану", "24.03", {})
-        }
+//        item{
+//            Spacer(modifier = Modifier.height(24.dp))
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth(),
+//                verticalAlignment = Alignment.CenterVertically
+//            ){
+//                if(isDarkTheme) {
+//                    Image(
+//                        painter = painterResource(R.drawable.deadlinedark),
+//                        contentDescription = "События",
+//                        modifier = Modifier.size(32.dp)
+//                    )
+//                } else{
+//                    Image(
+//                        painter = painterResource(R.drawable.deadline),
+//                        contentDescription = "События",
+//                        modifier = Modifier.size(20.dp)
+//                    )
+//                }
+//                Spacer(Modifier.width(8.dp))
+//                Text("События",
+//                    fontFamily = FontFamily(
+//                        Font(R.font.inter_bold, FontWeight.Bold)
+//                    ),
+//                    fontSize = 18.sp,
+//                    color = MaterialTheme.colorScheme.onBackground
+//                )
+//                Spacer(Modifier.weight(1f))
+//                Text("Все",
+//                    fontFamily = FontFamily(
+//                        Font(R.font.inter_medium, FontWeight.Normal)
+//                    ),
+//                    fontSize = 14.sp,
+//                    modifier = Modifier.clickable {  },
+//                    color = MaterialTheme.colorScheme.primary
+//                )
+//            }
+//        }
+//        item{
+//            Spacer(modifier = Modifier.height(8.dp))
+//            EventCard("Контрольная по матану", "24.03", {})
+//        }
     }
 }
 @PreviewLightDark
