@@ -53,6 +53,7 @@ import com.example.kubik.presentation.files.FilesTab
 import com.example.kubik.presentation.home.components.CustomDrawerContent
 import com.example.kubik.presentation.home.components.CustomRenameProfileDialog
 import com.example.kubik.presentation.navigation.NavigationItem
+import com.example.kubik.presentation.questions.QuestionsListScreen
 import com.example.kubik.presentation.queues.QueueDetailsScreen
 import com.example.kubik.presentation.queues.QueuesListScreen
 //import com.example.kubik.presentation.queues.QueuesTab
@@ -212,7 +213,7 @@ fun HomeScreen(
                     FilesTab(innerPadding = innerPadding)
                 }
                 composable(NavigationItem.Requests.route) {
-                    RequestsTab()
+                    QuestionsListScreen(innerPadding = innerPadding)
                 }
                 composable(
                     route = NavigationItem.QueueDetails.route,
@@ -248,13 +249,6 @@ fun HomeScreen(
 fun CalendarTab(){
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
         Text(text="Calendar")
-    }
-}
-
-@Composable
-fun RequestsTab(){
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-        Text(text="Requests")
     }
 }
 
