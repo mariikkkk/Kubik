@@ -3,6 +3,7 @@ package com.example.kubik.presentation.home
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -49,6 +50,7 @@ import androidx.navigation.navArgument
 import com.example.kubik.R
 import com.example.kubik.di.SupabaseModule
 import com.example.kubik.domain.models.ThemeMode
+import com.example.kubik.presentation.components.CustomBottomBar
 import com.example.kubik.presentation.files.FilesTab
 import com.example.kubik.presentation.home.components.CustomDrawerContent
 import com.example.kubik.presentation.home.components.CustomRenameProfileDialog
@@ -121,114 +123,105 @@ fun HomeScreen(
                 )
         }
     ) {
-        Scaffold(
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            currentTitle,
-                            fontFamily =
-                                FontFamily(
-                                    Font(
-                                        R.font.inter_bold,
-                                        FontWeight.Bold
-                                    )
-                                ),
-                            fontSize = 20.sp,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(
-                            {
-                                scope.launch {
-                                    drawerState.open()
-                                }
-                            }
-                        ) {
-                            Icon(Icons.Default.Menu, contentDescription = "Меню")
-                        }
-                    },
-                    scrollBehavior = scrollBehavior,
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.8f), // Прозрачная, когда мы наверху списка
-                        scrolledContainerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.95f) // Слегка заливаем цветом фона, когда текст едет под неё
-                    )
-                )
-            },
-            bottomBar = {
-                NavigationBar(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    tonalElevation = 8.dp
-                ) {
-                    items.forEachIndexed { index, item ->
-                        NavigationBarItem(
-                            icon =
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ){
+            Scaffold(
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                currentTitle,
+                                fontFamily =
+                                    FontFamily(
+                                        Font(
+                                            R.font.inter_bold,
+                                            FontWeight.Bold
+                                        )
+                                    ),
+                                fontSize = 20.sp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        },
+                        navigationIcon = {
+                            IconButton(
                                 {
-                                    if (item.icon != null)
-                                    {
-                                        Icon(item.icon, contentDescription = item.title)
+                                    scope.launch {
+                                        drawerState.open()
                                     }
-                                    else if(item.iconId != null)
-                                    {
-                                        Icon(painter = painterResource(item.iconId), contentDescription = item.title)
-                                    }
-                                },
-                            label = { Text(item.title, fontSize = 10.sp) },
-                            selected = currentRoute == item.route,
-                            onClick = {
-                                tabNavController.navigate(item.route){
-                                    // При переходе обрезаем стек до стартового экрана
-                                    popUpTo(tabNavController.graph.startDestinationId) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                } },
+                                }
+                            ) {
+                                Icon(Icons.Default.Menu, contentDescription = "Меню")
+                            }
+                        },
+                        scrollBehavior = scrollBehavior,
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.8f), // Прозрачная, когда мы наверху списка
+                            scrolledContainerColor = MaterialTheme.colorScheme.background.copy(alpha = 0.95f) // Слегка заливаем цветом фона, когда текст едет под неё
+                        )
+                    )
+                },
+                bottomBar = {
+                }
+            ) { innerPadding ->
+                NavHost(
+                    navController = tabNavController,
+                    startDestination = NavigationItem.Home.route,
+                    modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
+                ) {
+                    composable(NavigationItem.Home.route) {
+                        HomeTab(tabNavController, innerPadding)
+                    }
+                    composable(NavigationItem.Queues.route) {
+                        QueuesListScreen(
+                            innerPadding = innerPadding,
+                            onQueueClick = { queueId ->
+                                tabNavController.navigate(NavigationItem.QueueDetails.route(queueId))
+                            })
+                    }
+                    composable(NavigationItem.Calendar.route){
+                        CalendarTab()
+                    }
+                    composable(NavigationItem.Files.route){
+                        FilesTab(innerPadding = innerPadding)
+                    }
+                    composable(NavigationItem.Requests.route) {
+                        QuestionsListScreen(innerPadding = innerPadding)
+                    }
+                    composable(
+                        route = NavigationItem.QueueDetails.route,
+                        arguments = listOf(navArgument("queueId") { type = NavType.StringType })
+                    ) {
+                        QueueDetailsScreen(
+                            innerPadding = innerPadding,
+                            onBackClick = {
+                                tabNavController.popBackStack()
+                            }
                         )
                     }
-                }
-            }
-        ) { innerPadding ->
-            NavHost(
-                navController = tabNavController,
-                startDestination = NavigationItem.Home.route,
-                modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
-            ) {
-                composable(NavigationItem.Home.route) {
-                    HomeTab(tabNavController, innerPadding)
-                }
-                composable(NavigationItem.Queues.route) {
-                    QueuesListScreen(
-                        innerPadding = innerPadding,
-                        onQueueClick = { queueId ->
-                            tabNavController.navigate(NavigationItem.QueueDetails.route(queueId))
-                        })
-                }
-                composable(NavigationItem.Calendar.route){
-                    CalendarTab()
-                }
-                composable(NavigationItem.Files.route){
-                    FilesTab(innerPadding = innerPadding)
-                }
-                composable(NavigationItem.Requests.route) {
-                    QuestionsListScreen(innerPadding = innerPadding)
-                }
-                composable(
-                    route = NavigationItem.QueueDetails.route,
-                    arguments = listOf(navArgument("queueId") { type = NavType.StringType })
-                ) {
-                    QueueDetailsScreen(
-                        innerPadding = innerPadding,
-                        onBackClick = {
-                            tabNavController.popBackStack()
-                        }
-                    )
-                }
 
+                }
             }
+            CustomBottomBar(
+                items = items,
+                currentRoute = currentRoute,
+                onItemClick = {
+                    tabNavController.navigate(it.route) {
+                        popUpTo(tabNavController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .navigationBarsPadding()
+                    .padding(bottom = 12.dp)
+            )
         }
+
     }
     if (showEditDialog && user != null){
         CustomRenameProfileDialog(

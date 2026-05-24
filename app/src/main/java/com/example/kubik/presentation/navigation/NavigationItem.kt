@@ -8,11 +8,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.kubik.R
 
 sealed class NavigationItem(val route: String, val icon: ImageVector? = null, val iconId: Int? = null, val title: String) {
-    object Home    : NavigationItem("home", Icons.Default.Home, title = "Главная")
-    object Queues  : NavigationItem("queues", Icons.Default.List, title = "Очереди")
-    object Calendar: NavigationItem("calendar", Icons.Default.DateRange, title = "Календарь")
-    object Requests: NavigationItem("questions", iconId = R.drawable.message, title = "Вопросы")
-    object Files   : NavigationItem("files", iconId = R.drawable.file, title = "Файлы")
+    object Home    : NavigationItem("home", iconId = R.drawable.home, title = "Главная")
+    object Queues  : NavigationItem("queues", iconId = R.drawable.queues, title = "Очереди")
+    object Calendar: NavigationItem("calendar", iconId = R.drawable.deadline, title = "Календарь")
+    object Requests: NavigationItem("questions", iconId = R.drawable.questions, title = "Вопросы")
+    object Files   : NavigationItem("files", iconId = R.drawable.files, title = "Файлы")
     object QueueDetails: NavigationItem("queue_details/{queueId}", title = "Очередь"){
         fun route(queueId: String) = "queue_details/$queueId"
     }
