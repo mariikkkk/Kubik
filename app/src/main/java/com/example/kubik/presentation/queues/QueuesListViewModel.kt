@@ -102,7 +102,7 @@ class QueuesListViewModel @Inject constructor(
     fun createQueue(title: String, totalSlots: Int, submissionDate: Long?){
         viewModelScope.launch {
             _isLoading.value = true
-            val user = getUserUseCase().first()
+            val user = _currentUser.value
             if(user == null || user.groupId == null){
                 _errorMessage.value = "Пользователь не найден"
                 _isLoading.value = false
