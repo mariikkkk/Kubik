@@ -13,7 +13,7 @@ val KubikAttentionDark = Color(0xFFFF2056)
 // =========================================
 // 2. ФОН ПРИЛОЖЕНИЯ (Backgrounds)
 // =========================================
-val KubikBackground = Color(0xFFFFFFFF)         // Фон приложения в светлой теме
+val KubikBackground = Color(0xFFF8FAFC)         // Фон приложения в светлой теме
 val KubikBackgroundDark = Color(0xFF020618)     // Фон приложения в темной теме
 
 // =========================================
