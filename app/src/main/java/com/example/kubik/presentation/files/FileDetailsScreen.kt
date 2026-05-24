@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -41,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -55,6 +57,7 @@ import com.example.kubik.presentation.components.FilterTabs
 import com.example.kubik.presentation.files.components.CustomUploadDialog
 import com.example.kubik.presentation.files.components.FileCard
 import com.example.kubik.presentation.theme.KubikTheme
+import com.example.kubik.presentation.theme.glow
 import java.text.DecimalFormat
 import kotlin.math.log10
 import kotlin.math.pow
@@ -104,11 +107,11 @@ fun FileDetailsScreen(
         .padding(
             top = innerPadding.calculateTopPadding() + 8.dp,
             start = 12.dp,
-            end = 12.dp
+            end = 12.dp,
+            bottom = 104.dp
         )
     ){
-        Column()
-        {
+        Column{
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -209,7 +212,17 @@ fun FileDetailsScreen(
         }
         FloatingActionButton(
             onClick = { showAddDialog = true },
-            modifier = Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = 16.dp)
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .glow(
+                    MaterialTheme.colorScheme.primary,
+                    1f,
+                    30.dp,
+                    15.dp
+                ),
+            shape = CircleShape,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = Color.White
         ){
             Icon(painter = painterResource(R.drawable.download),
                 contentDescription = "Добавить")
