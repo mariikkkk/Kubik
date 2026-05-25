@@ -45,6 +45,7 @@ fun CustomBottomBar(
     onItemClick: (NavigationItem) -> Unit,
     modifier: Modifier = Modifier
 ){
+    val isDarkTheme = LocalIsDarkTheme.current
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -56,12 +57,12 @@ fun CustomBottomBar(
                 .fillMaxWidth()
                 .height(72.dp),
             shape = RoundedCornerShape(36.dp),
-            color = MaterialTheme.colorScheme.surface,
+            color = if(isDarkTheme) Color(0xFF0F172B).copy(0.8f) else Color(0xFFFFFFFF).copy(0.8f),
             border = BorderStroke(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.outline
             ),
-            tonalElevation = 8.dp,
+//            tonalElevation = 8.dp,
             shadowElevation = 12.dp
         ){
             Row(
