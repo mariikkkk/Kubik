@@ -209,10 +209,10 @@ fun HomeScreen(
                 onItemClick = {
                     tabNavController.navigate(it.route) {
                         popUpTo(tabNavController.graph.startDestinationId) {
-                            saveState = true
+                            saveState = false
                         }
                         launchSingleTop = true
-                        restoreState = true
+                        restoreState = false
                     }
                 },
                 modifier = Modifier
