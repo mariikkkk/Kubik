@@ -8,6 +8,8 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
@@ -16,10 +18,19 @@ private val DarkColorScheme = darkColorScheme(
     background = KubikBackgroundDark,
     surface = SurfaceDark,
     onSurface = OnSurfaceTextDark,
-    secondary = PurpleGrey80,
-    tertiary = Pink80,
     onSecondary = textOnBackgroundSecondary,
-    outline = OutlinedDark
+    outline = OutlinedDark,
+    primaryContainer = PrimaryContainerDark,
+    onPrimaryContainer = textOnPrimaryContainerDark,
+    secondaryContainer = secondaryContainerDark,
+    surfaceVariant = tabContainerDark,
+    onSurfaceVariant = OnSurfaceVariantTextDark,
+    tertiaryContainer = tertiaryContainerDark,
+    onTertiaryContainer = onTertiaryContainerDark,
+    tertiary = tertiaryDark,
+    onTertiary = onTertiaryDark,
+    onSecondaryContainer = onSecondaryContainerDark,
+    error = KubikAttentionDark
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -30,11 +41,23 @@ private val LightColorScheme = lightColorScheme(
     onPrimary = Color.White,        // текст на основном цвете
     onBackground = TextPrimary,      // текст на общем фоне
     onSecondary = textOnBackgroundSecondary,
-    onTertiary = Color.White,
+    surfaceVariant = tabContainer,
+    tertiary = tertiary,
+    onTertiary = onTertiary,
     onSurface = OnSurfaceText,
-    outline = Outlined
-
+    outline = Outlined,
+    primaryContainer = PrimaryContainer,
+    onPrimaryContainer = textOnPrimaryContainer,
+    secondaryContainer = secondaryContainer,
+    onSurfaceVariant = OnSurfaceVariantText,
+    tertiaryContainer = tertiaryContainer,
+    onTertiaryContainer = onTertiaryContainer,
+    onSecondaryContainer = onSecondaryContainer,
+    error = KubikAttention,
 )
+
+val LocalIsDarkTheme = compositionLocalOf { false }
+
 
 @Composable
 fun KubikTheme(
@@ -52,10 +75,11 @@ fun KubikTheme(
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
-
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    CompositionLocalProvider(LocalIsDarkTheme provides darkTheme) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content
+        )
+    }
 }

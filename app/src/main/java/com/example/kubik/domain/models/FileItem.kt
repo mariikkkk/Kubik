@@ -17,7 +17,7 @@ data class FileItem(
     val id: Int,
     val folderId: Int,
     val name: String,
-    val size: String,
+    val size: Long,
     val type: FileType,
     val date: String,
     val author: String,

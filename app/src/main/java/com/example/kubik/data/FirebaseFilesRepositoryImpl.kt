@@ -4,12 +4,15 @@ package com.example.kubik.data
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.Uri
+import android.provider.OpenableColumns
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.PutObjectRequest
+import com.example.kubik.BuildConfig
 import com.example.kubik.domain.models.FileFolderItem
 import com.example.kubik.domain.models.FileItem
 import com.example.kubik.domain.repository.FilesRepository
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -27,12 +30,22 @@ import javax.inject.Inject
 class FirebaseFilesRepositoryImpl @Inject constructor
     (
     @ApplicationContext private val context: Context,
-    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private val firestore: FirebaseFirestore
 ): FilesRepository {
     private val storage = FirebaseStorage.getInstance()
+    private fun getFileSize(uri: Uri): Long{
+        var size = 0L
+        context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+            if(cursor.moveToFirst() &&sizeIndex != -1){
+                size = cursor.getLong(sizeIndex)
+            }
+        }
+        return size
+    }
 
-    override fun getFolders(): Flow<List<FileFolderItem>> = callbackFlow{
-        val collection = firestore.collection("folders")
+    override fun getFolders(groupId: String): Flow<List<FileFolderItem>> = callbackFlow{
+        val collection = firestore.collection("folders").whereEqualTo("groupId", groupId)
         val listener = collection.addSnapshotListener { snapshot, error ->
             if (error != null) {
                 close(error)
@@ -52,12 +65,14 @@ class FirebaseFilesRepositoryImpl @Inject constructor
         }
     }
 
-    override suspend fun addFolder(name: String, semester: Int, newId: Int) {
+    override suspend fun addFolder(name: String, semester: Int, groupId: String) {
+        val newId = (1..Int.MAX_VALUE).random()
         val newFolderMap = hashMapOf(
             "id" to newId,
             "name" to name,
             "countFiles" to 0,
-            "semester" to semester
+            "semester" to semester,
+            "groupId" to groupId
         )
         firestore.collection("folders").add(newFolderMap)
     }
@@ -68,7 +83,7 @@ class FirebaseFilesRepositoryImpl @Inject constructor
                 for (document in documents){
                     document.reference.delete()
                 }
-            }
+            }.await()
 
     }
 
@@ -97,11 +112,12 @@ class FirebaseFilesRepositoryImpl @Inject constructor
     override suspend fun addFile(file: FileItem, fileUri: Uri) {
         withContext(Dispatchers.IO){                                                                // Переносим всю работу с главного потока в фоновый (передача заказа повару)
             try{
-                val accessKey = "I2GQS912HUOK6CP6O5LG"
-                val secretKey = "HEPEowHtrZCiUKcpYfz6neZDfcoGojHKdomjTijp"
+                val accessKey = BuildConfig.AWS_ACCESS_KEY
+                val secretKey = BuildConfig.AWS_SECRET_KEY
                 val bucketName = "795ec9d1-a8dc-4c2f-9c69-33e40f61f256"
                 val credentials = BasicAWSCredentials(accessKey, secretKey)                                 // Паспорт из ключей
                 val s3client = AmazonS3Client(credentials)                                  // передача паспорта клиенту
+                val fileSize = getFileSize(fileUri)
                 s3client.setEndpoint("https://s3.twcstorage.ru")                                            // работаем с таймвеб
 
                 val tmpFile = File.createTempFile("tmp", null, context.cacheDir)  // временный пустой файл, так как андроид дает только Uri
@@ -119,7 +135,7 @@ class FirebaseFilesRepositoryImpl @Inject constructor
                 "id" to file.id,
                 "folderId" to file.folderId,
                 "name" to file.name,
-                "size" to file.size,
+                "size" to fileSize,
                 "type" to file.type.name,
                 "date" to file.date,
                 "author" to file.author,
@@ -127,6 +143,13 @@ class FirebaseFilesRepositoryImpl @Inject constructor
                 "fileUrl" to downloadUrl
             )
                 firestore.collection("files").add(newFileMap).await()
+                val folderQuery = firestore.collection("folders").whereEqualTo("id", file.folderId).get().await()
+                for (document in folderQuery.documents){
+                    document.reference.update(
+                        "countFiles",
+                        FieldValue.increment(1)
+                    ).await()
+                }
                 tmpFile.delete()
 
 
@@ -136,13 +159,19 @@ class FirebaseFilesRepositoryImpl @Inject constructor
         }
     }
 
-    override suspend fun deleteFile(fileId: Int) {
+    override suspend fun deleteFile(fileId: Int, folderId: Int) {
         firestore.collection("files").whereEqualTo("id", fileId).get()
             .addOnSuccessListener { documents ->
                 for (document in documents){
                     document.reference.delete()
                 }
-            }
-
+            }.await()
+        val folderQuery = firestore.collection("folders").whereEqualTo("id", folderId).get().await()
+        for (document in folderQuery.documents){
+            document.reference.update(
+                "countFiles",
+                FieldValue.increment(-1)
+            ).await()
+        }
     }
 }

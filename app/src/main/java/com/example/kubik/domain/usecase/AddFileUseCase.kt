@@ -4,6 +4,7 @@ import android.net.Uri
 import com.example.kubik.domain.models.FileCategory
 import com.example.kubik.domain.models.FileItem
 import com.example.kubik.domain.models.FileType
+import com.example.kubik.domain.models.User
 import com.example.kubik.domain.repository.FilesRepository
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -16,7 +17,8 @@ class AddFileUseCase @Inject constructor(
         fileName: String,
         category: FileCategory,
         folderId: Int,
-        fileUri: Uri
+        fileUri: Uri,
+        currentUser: User
     ){
         val newId = (1..Int.MAX_VALUE).random()
         val extension = fileName.substringAfterLast('.').lowercase()
@@ -29,14 +31,15 @@ class AddFileUseCase @Inject constructor(
             "jpg", "jpeg" -> FileType.JPEG
             else -> FileType.PDF
         }
+        val fullName = "${currentUser.firstName} ${currentUser.lastName}"
         val newFile = FileItem(
             newId,
             folderId,
             fileName,
-            "? MB",
+            0L,
             type,
             LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
-            "Студент",
+            fullName,
             category,
             fileUrl = ""
         )

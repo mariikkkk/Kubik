@@ -53,12 +53,14 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.kubik.domain.models.FileCategory
 import com.example.kubik.domain.models.FileFolderItem
+import com.example.kubik.presentation.components.CustomTextField
 import com.example.kubik.presentation.theme.KubikTheme
 
 fun Modifier.dashedBorder(color: Color, cornerRadius: Dp) = composed {
@@ -93,7 +95,7 @@ fun CustomUploadDialog(
     var expandedCategoryMenu by remember { mutableStateOf(false) }
     var expandedFolderMenu by remember { mutableStateOf(false) }
     var selectedFolder by remember { mutableStateOf(folders.find {
-        it.id == (initialFolderId ?: folders.firstOrNull())
+        it.id == (initialFolderId ?: folders.firstOrNull()?.id)
     }) }
     val context = LocalContext.current // пропуск к системным функциям приложения
     // Переменная для хранения ссылки на выбранный файл с устройства
@@ -155,67 +157,38 @@ fun CustomUploadDialog(
                 }
                 Spacer(Modifier.height(24.dp))
                 DialogRow(label="Название"){
-                    BasicTextField(
+                    CustomTextField(
                         value = fileNameWithoutExtension,
-                        onValueChange = {fileNameWithoutExtension = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(32.dp)
-                            .background(
-                                MaterialTheme.colorScheme.surfaceVariant,
-                                RoundedCornerShape(12.dp)
-                            ),
+                        onValueChange = { fileNameWithoutExtension = it },
                         singleLine = true,
-                        textStyle = MaterialTheme.typography.bodyMedium.copy(
-                            color = MaterialTheme.colorScheme.onSurface
-                        ),
-                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
-                        decorationBox = { innerTextField ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ){
-                                Box(
-                                    modifier = Modifier
-                                        .weight(1f),
-                                    contentAlignment = Alignment.CenterStart
-                                ){
-                                    if (fileNameWithoutExtension.isEmpty() && fileExtension.isEmpty()){
-                                        Text("Например: Лекция №1.pdf",
-                                            color = Color.LightGray,
-                                            fontSize = 12.sp,
-                                            maxLines = 1,
-                                        )
-                                    }
-                                    innerTextField()
-                                }
-                                if(fileExtension.isNotEmpty())
-                                    Text(
-                                        text = ".$fileExtension",
-                                        color = Color.LightGray,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                            }
-
+                        placeholder = "Например: Лекция №1.pdf",
+                        trailingContent = {
+                            if(fileExtension.isNotEmpty())
+                                Text(
+                                    text = ".$fileExtension",
+                                    color = Color.LightGray,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
                         }
-
                     )
                 }
                 Spacer(Modifier.height(16.dp))
-                DialogRow(label="Предмет"){
-                    Box{
+                DialogRow(label="Предмет") {
+                    Box {
                         BasicTextField(
                             value = selectedFolder?.name ?: "",
                             onValueChange = {},
                             modifier = Modifier.fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp))
+                                .background(
+                                    MaterialTheme.colorScheme.surfaceVariant,
+                                    RoundedCornerShape(12.dp)
+                                )
                                 .height(32.dp)
                                 .padding(end = 12.dp),
                             textStyle = MaterialTheme.typography.bodyMedium.copy(
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onBackground),
+                                color = MaterialTheme.colorScheme.onBackground
+                            ),
                             readOnly = true,
                             singleLine = true,
                             decorationBox = { innerTextField ->
@@ -223,19 +196,21 @@ fun CustomUploadDialog(
                                     modifier = Modifier
                                         .fillMaxWidth(),
                                     contentAlignment = Alignment.Center
-                                ){
+                                ) {
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.SpaceBetween
-                                    ){
-                                        Box(modifier = Modifier
-                                            .weight(1f)
-                                            .padding(start = 12.dp)
-                                            .basicMarquee()){
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .padding(start = 12.dp)
+                                                .basicMarquee()
+                                        ) {
                                             innerTextField()
                                         }
-                                        if(folders.size > 1) {
+                                        if (folders.size > 1) {
                                             Icon(
                                                 Icons.Default.KeyboardArrowDown,
                                                 contentDescription = "Выпадающее меню предметов",
@@ -249,7 +224,7 @@ fun CustomUploadDialog(
                             }
 
                         )
-                        if (folders.size > 1){
+                        if (folders.size > 1) {
                             Surface(
                                 modifier = Modifier.matchParentSize(),
                                 color = Color.Transparent,
@@ -409,7 +384,7 @@ fun DialogRow(label: String, content: @Composable () -> Unit){
     }
 }
 
-@Preview
+@PreviewLightDark
 @Composable
 fun DialogPreview(){
     KubikTheme() {
