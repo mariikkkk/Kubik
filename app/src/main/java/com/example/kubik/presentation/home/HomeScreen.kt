@@ -82,7 +82,7 @@ fun HomeScreen(
     var showEditDialog by remember { mutableStateOf(false) }
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     val items = listOf(
-        NavigationItem.Calendar,
+        //NavigationItem.Calendar,
         NavigationItem.Queues,
         NavigationItem.Home,
         NavigationItem.Requests,
