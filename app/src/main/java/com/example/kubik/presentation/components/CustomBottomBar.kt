@@ -75,12 +75,42 @@ fun CustomBottomBar(
                 items.forEach { item ->
                     CustomBottomBarItem(
                         item = item,
-                        selected = currentRoute == item.route,
+                        selected = isBottomBarItemSelected(
+                            item = item,
+                            currentRoute = currentRoute
+                        ),
                         onClick = { onItemClick(item) }
                     )
                 }
             }
         }
+    }
+}
+
+private fun isBottomBarItemSelected(
+    item: NavigationItem,
+    currentRoute: String?
+): Boolean {
+    if (currentRoute == null) return false
+    if (currentRoute == item.route) return true
+    return when (item) {
+        NavigationItem.Queues -> {
+            currentRoute.contains("queue", ignoreCase = true)
+        }
+        NavigationItem.Files -> {
+            currentRoute.contains("file", ignoreCase = true)
+        }
+        NavigationItem.Requests -> {
+            currentRoute.contains("request", ignoreCase = true) ||
+                    currentRoute.contains("question", ignoreCase = true)
+        }
+        NavigationItem.Home -> {
+            currentRoute.contains("home", ignoreCase = true)
+        }
+        NavigationItem.Calendar -> {
+            currentRoute.contains("calendar", ignoreCase = true)
+        }
+        else -> false
     }
 }
 
