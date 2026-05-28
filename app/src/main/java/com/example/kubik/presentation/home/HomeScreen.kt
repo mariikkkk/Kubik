@@ -50,6 +50,7 @@ import androidx.navigation.navArgument
 import com.example.kubik.R
 import com.example.kubik.di.SupabaseModule
 import com.example.kubik.domain.models.ThemeMode
+import com.example.kubik.presentation.announcement.AnnouncementListScreen
 import com.example.kubik.presentation.components.CustomBottomBar
 import com.example.kubik.presentation.files.FilesTab
 import com.example.kubik.presentation.home.components.CustomDrawerContent
@@ -194,6 +195,14 @@ fun HomeScreen(
                         arguments = listOf(navArgument("queueId") { type = NavType.StringType })
                     ) {
                         QueueDetailsScreen(
+                            innerPadding = innerPadding,
+                            onBackClick = {
+                                tabNavController.popBackStack()
+                            }
+                        )
+                    }
+                    composable(NavigationItem.Announcements.route) {
+                        AnnouncementListScreen(
                             innerPadding = innerPadding,
                             onBackClick = {
                                 tabNavController.popBackStack()

@@ -1,7 +1,7 @@
 package com.example.kubik.presentation.queues
 
 import androidx.compose.ui.graphics.Color
-import com.example.kubik.domain.models.QueueItem
+import com.example.kubik.domain.queues.models.QueueItem
 import com.example.kubik.presentation.theme.statusGreenSurface
 import com.example.kubik.presentation.theme.statusGreenText
 import com.example.kubik.presentation.theme.statusRedSurface
