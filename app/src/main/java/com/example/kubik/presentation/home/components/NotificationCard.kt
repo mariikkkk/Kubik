@@ -51,12 +51,12 @@ fun NotificationCard(
                 .background(MaterialTheme.colorScheme.primaryContainer.copy(0.3f))
                 .height(IntrinsicSize.Min)
         ){
-//            Box(
-//                modifier = Modifier
-//                    .background(MaterialTheme.colorScheme.primary)
-//                    .fillMaxHeight()
-//                    .width(8.dp),
-//            )
+            Box(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.primary)
+                    .fillMaxHeight()
+                    .width(8.dp),
+            )
             Box(
                 modifier = Modifier
                     .heightIn(100.dp)

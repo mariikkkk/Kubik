@@ -127,7 +127,7 @@ fun QuestionCard(
                     }
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        state.question.createdAt.toFormattedDate("d.MM.YYYY, HH:mm"),
+                        state.question.createdAt.toFormattedDate("d.MM.yyyy, HH:mm"),
                         fontFamily = FontFamily(
                             Font(
                                 R.font.inter_regular,
