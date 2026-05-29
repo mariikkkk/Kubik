@@ -108,7 +108,7 @@ fun FileDetailsScreen(
             top = innerPadding.calculateTopPadding() + 8.dp,
             start = 12.dp,
             end = 12.dp,
-            bottom = 104.dp
+            bottom = 12.dp
         )
     ){
         Column{
@@ -189,7 +189,7 @@ fun FileDetailsScreen(
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 10.dp)
+                contentPadding = PaddingValues(bottom = 130.dp)
             ) {
                 items(items = filteredFiles, key = { it.id }) { file ->
                     FileCard(
@@ -214,6 +214,7 @@ fun FileDetailsScreen(
             onClick = { showAddDialog = true },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
+                .padding(bottom = 92.dp)
                 .glow(
                     MaterialTheme.colorScheme.primary,
                     1f,
