@@ -60,7 +60,7 @@ fun SlotCard(
             1.dp,
             colors.borderColor
         ),
-        enabled = if(queueStatus == QueueStatus.CLOSED) false else true,
+//        enabled = if(queueStatus == QueueStatus.CLOSED) false else true,
         onClick = {
             when{
                 item.slot == null && !item.isBlocked -> onSlotClick(item.slotNumber)

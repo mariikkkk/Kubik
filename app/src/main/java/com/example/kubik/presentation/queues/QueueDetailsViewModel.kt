@@ -96,10 +96,13 @@ class QueueDetailsViewModel @Inject constructor(
                         || it.typedStatus == SlotStatus.FAILED
             }.maxOfOrNull{ it.slotNumber }
             //Если очереди запущена и есть текущий сдающий и номер места меньше текущего сдающего и место свободно
-            val isBlocked = isActive && activeSlot != null &&
-                    progress != null &&
-                    slotNumber < progress &&
-                    slot == null
+            // Или если очередь закрыта и слот пустой
+            val isBlocked = (queue?.typedStatus == QueueStatus.CLOSED && slot == null)
+                    || (isActive &&
+                            activeSlot != null &&
+                            progress != null &&
+                            slotNumber < progress &&
+                            slot == null)
             SlotDisplayItem(
                 slotNumber = slotNumber,
                 slot = slot,
