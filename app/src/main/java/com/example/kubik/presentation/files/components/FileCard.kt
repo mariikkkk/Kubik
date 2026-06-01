@@ -38,14 +38,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kubik.R
-import com.example.kubik.domain.models.FileCategory
-import com.example.kubik.domain.models.FileItem
-import com.example.kubik.domain.models.FileType
+import com.example.kubik.domain.files.models.FileCategory
+import com.example.kubik.domain.files.models.FileItem
+import com.example.kubik.domain.files.models.FileType
 import com.example.kubik.presentation.theme.KubikTheme
 import java.text.DecimalFormat
 import kotlin.math.log10

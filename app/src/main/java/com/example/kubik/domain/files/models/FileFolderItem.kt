@@ -1,4 +1,4 @@
-package com.example.kubik.domain.models
+package com.example.kubik.domain.files.models
 
 data class FileFolderItem(
     val id: Int = 0,

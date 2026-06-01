@@ -2,9 +2,6 @@ package com.example.kubik.presentation.files
 
 import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -50,17 +46,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.example.kubik.R
-import com.example.kubik.domain.models.FileCategory
-import com.example.kubik.domain.models.FileFolderItem
-import com.example.kubik.domain.models.FileItem
+import com.example.kubik.domain.files.models.FileCategory
+import com.example.kubik.domain.files.models.FileFolderItem
+import com.example.kubik.domain.files.models.FileItem
 import com.example.kubik.presentation.components.FilterTabs
+import com.example.kubik.presentation.files.components.CustomRenameDialog
 import com.example.kubik.presentation.files.components.CustomUploadDialog
 import com.example.kubik.presentation.files.components.FileCard
 import com.example.kubik.presentation.theme.KubikTheme
 import com.example.kubik.presentation.theme.glow
-import java.text.DecimalFormat
-import kotlin.math.log10
-import kotlin.math.pow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,22 +68,21 @@ fun FileDetailsScreen(
     onAddFileClick: (String, FileCategory, Uri) -> Unit,
     onDeleteFileClick: (Int) -> Unit,
     onDownloadFileClick: (String, String) -> Unit,
-    onRenameFileClick: (Int, String) -> Unit,
+    onRenameFileClick: (Int?, String) -> Unit,
     onShareFileClick: (String, String) -> Unit
 ){
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf(FileCategory.ALL) }
-
     var showAddDialog by rememberSaveable { mutableStateOf(false) }
     var newFileName by remember { mutableStateOf("") }
-
+    var fileIdToRename by remember { mutableStateOf<Int?>(null) }
+    var showRenameDialog by remember { mutableStateOf(false) }
 
     val filteredFiles = files.filter { file ->
         val matchesSearch = file.name.contains(searchQuery, ignoreCase = true)
         val matchesVategory = selectedCategory == FileCategory.ALL || file.category == selectedCategory
         matchesSearch && matchesVategory
     }
-
     var wasUploading by remember { mutableStateOf(false) }
     LaunchedEffect(isUploading) {
         if(isUploading){
@@ -201,7 +194,11 @@ fun FileDetailsScreen(
                         onDeleteClick = {
                             onDeleteFileClick(file.id)
                         },
-                        onRenameClick = {},
+                        onRenameClick = {
+                            showRenameDialog = true
+                            fileIdToRename = file.id
+                            newFileName = file.name
+                        },
                         modifier = Modifier.animateItem()
                     )
                     Spacer(Modifier.height(4.dp))
@@ -238,8 +235,19 @@ fun FileDetailsScreen(
                 name, category, folder, uri ->
                     onAddFileClick(name, category, uri)
                         //showAddDialog = false
-            })
+                }
+            )
        }
+        if(showRenameDialog){
+            CustomRenameDialog(
+                fileName = newFileName,
+                onDismiss = { showRenameDialog = false },
+                { updatedName ->
+                    onRenameFileClick(fileIdToRename, updatedName)
+                    showRenameDialog = false
+                },
+            )
+        }
     }
 }
 

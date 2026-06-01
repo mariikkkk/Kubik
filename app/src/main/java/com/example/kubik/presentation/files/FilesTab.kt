@@ -67,7 +67,7 @@ fun FilesTab(
                 downloadFile(context, fileUrl, fileName)
             },
             onRenameFileClick = { fileId, newName ->
-                //viewModel.deleteFile(fileId)
+                viewModel.renameFile(fileId!!, newName)
             },
             onShareFileClick = { fileUrl, fileName ->
                 shareFile(context, fileUrl, fileName)

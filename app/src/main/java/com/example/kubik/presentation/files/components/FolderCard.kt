@@ -31,7 +31,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kubik.R
-import com.example.kubik.domain.models.FileFolderItem
+import com.example.kubik.domain.files.models.FileFolderItem
 import com.example.kubik.presentation.theme.KubikTheme
 import com.example.kubik.presentation.theme.LocalIsDarkTheme
 

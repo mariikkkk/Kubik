@@ -1,4 +1,4 @@
-package com.example.kubik.domain.models
+package com.example.kubik.domain.files.models
 
 
 enum class FileType{
