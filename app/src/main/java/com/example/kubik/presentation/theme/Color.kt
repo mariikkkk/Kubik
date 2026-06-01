@@ -20,7 +20,7 @@ val KubikBackgroundDark = Color(0xFF020618)     // Фон приложения �
 // 3. ПОВЕРХНОСТИ И КАРТОЧКИ (Surfaces)
 // =========================================
 val Surface = Color(0xFFFFFFFF)                 // Карточки и поля ввода (светлая)
-val SurfaceDark = Color(0xFF0F172B)             // Карточки в темной теме
+val SurfaceDark = Color(0xFF070D1F)             // Карточки в темной теме
 val surfaceVariant = Color(0xFF2B7FFF)          // Вариант поверхности (светлая)
 val surfaceVariantDark = Color(0xFF2B7FFF)      // Вариант поверхности (темная)
 

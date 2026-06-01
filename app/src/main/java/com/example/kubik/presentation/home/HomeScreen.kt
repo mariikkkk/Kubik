@@ -172,7 +172,7 @@ fun HomeScreen(
                     modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
                 ) {
                     composable(NavigationItem.Home.route) {
-                        HomeTab(tabNavController, innerPadding)
+                        HomeTab(tabNavController, innerPadding, onNavigateToGroup)
                     }
                     composable(NavigationItem.Queues.route) {
                         QueuesListScreen(
