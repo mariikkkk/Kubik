@@ -63,25 +63,33 @@ import com.example.kubik.presentation.announcement.components.AnnouncementCreate
 import com.example.kubik.presentation.home.components.DeadlineCard
 import com.example.kubik.presentation.home.components.EventCard
 import com.example.kubik.presentation.home.components.GreetingCard
+import com.example.kubik.presentation.home.components.HomeAnnouncementCard
 import com.example.kubik.presentation.home.components.MainCard
 import com.example.kubik.presentation.home.components.NotificationCard
+import com.example.kubik.presentation.home.components.QuestionCard
 import com.example.kubik.presentation.home.components.QueueCard
+import com.example.kubik.presentation.home.components.QuickActionRow
 import com.example.kubik.presentation.navigation.NavigationItem
+import com.example.kubik.presentation.questions.QuestionsViewModel
 import com.example.kubik.presentation.theme.KubikTheme
 import com.example.kubik.presentation.theme.LocalIsDarkTheme
+import com.example.kubik.presentation.utils.toFormattedDate
 
 @Composable
 fun HomeTab(
     tabNavController: NavController,
     innerPadding: PaddingValues,
+    onNavigateGroup: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
     homeViewModel: HomeViewModel = hiltViewModel(),
-    announcementViewModel: AnnouncementViewModel = hiltViewModel()
+    announcementViewModel: AnnouncementViewModel = hiltViewModel(),
+    questionViewModel: QuestionsViewModel = hiltViewModel()
 ){
     val user by viewModel.userState.collectAsStateWithLifecycle()
     val groupName by viewModel.groupName.collectAsStateWithLifecycle()
     val nearestQueueCardState by homeViewModel.nearestQueue.collectAsStateWithLifecycle()
     val announcementUiState by announcementViewModel.uiState.collectAsStateWithLifecycle()
+    val waitingCount by questionViewModel.waitingCount.collectAsStateWithLifecycle()
     HomeTabContent(
         user = user,
         tabNavController = tabNavController,
@@ -94,7 +102,9 @@ fun HomeTab(
         onAnnouncementTextChange = announcementViewModel::updateText,
         onAnnouncementTypeChange = announcementViewModel::selectType,
         onAnnouncementTitleChange = announcementViewModel::updateTitle,
-        onCreateAnnouncement = announcementViewModel::createAnnouncement
+        onCreateAnnouncement = announcementViewModel::createAnnouncement,
+        waitingCount = waitingCount,
+        onNavigateGroup = onNavigateGroup
     )
 }
 
@@ -105,7 +115,9 @@ fun HomeTabContent(
     innerPadding: PaddingValues,
     groupName: String,
     nearestQueueCardState: NearestQueueCardState?,
+    waitingCount: Int,
     announcementUiState: AnnouncementUiState,
+    onNavigateGroup: () -> Unit,
     onOpenAnnouncementDialog: () -> Unit,
     onCloseAnnouncementDialog: () -> Unit,
     onAnnouncementTitleChange: (String) -> Unit,
@@ -133,14 +145,13 @@ fun HomeTabContent(
     ) {
 
         item{
-            Spacer(modifier = Modifier.height(24.dp))
                 //GreetingCard(user)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
             ){
                 Text(
-                    "Привет,",
+                    System.currentTimeMillis().toFormattedDate("E, d MMMM"),
                     fontFamily = FontFamily(
                         Font(
                             R.font.inter_regular,
@@ -151,14 +162,14 @@ fun HomeTabContent(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    "${user?.firstName.toString()}\uD83D\uDC4B",
+                    "Привет, ${user?.firstName.toString()}\uD83D\uDC4B",
                     fontFamily = FontFamily(
                         Font(
                             R.font.inter_medium,
                             FontWeight.Medium
                         )
                     ),
-                    fontSize = 28.sp,
+                    fontSize = 24.sp,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(Modifier.height(8.dp))
@@ -223,18 +234,38 @@ fun HomeTabContent(
             }
         }
         item{
-            Spacer(modifier = Modifier.height(24.dp))
-            nearestQueueCardState?.let { queue ->
-                QueueCard(
-                    title = queue.title,
-                    position = queue.position,
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                nearestQueueCardState.let { queue ->
+                    QueueCard(
+                        title = queue?.title,
+                        position = queue?.position,
+                        onClick = {
+                            if(queue == null) {
+                                tabNavController.navigate(NavigationItem.Queues.route)
+                            }
+                            else {
+                                tabNavController.navigate(
+                                    NavigationItem.QueueDetails.route(queue.queueId)
+                                )
+                            }
+                        },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                QuestionCard(
+                    isStarosta = user?.role == "starosta",
+                    questionCount = waitingCount,
                     onClick = {
-                        tabNavController.navigate(
-                            NavigationItem.QueueDetails.route(queue.queueId)
-                        )
-                    }
+                        tabNavController.navigate(NavigationItem.Requests.route)
+                    },
+                    modifier = Modifier.weight(1f)
                 )
             }
+
 //            Spacer(Modifier.width(12.dp))
 //            DeadlineCard(
 //                title = "Физика",
@@ -250,15 +281,28 @@ fun HomeTabContent(
         }
         item{
             Spacer(modifier = Modifier.height(24.dp))
+            QuickActionRow(
+                onFileClick = {
+                    tabNavController.navigate(NavigationItem.Files.route)
+                },
+                onAnnouncementClick = {
+                    tabNavController.navigate(NavigationItem.Announcements.route)
+                },
+                onGroupClick = {
+                    onNavigateGroup()
+                }
+            )
+        }
+        item{
+            Spacer(modifier = Modifier.height(24.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ){
-                Image(painter = painterResource(R.drawable.notifications),
-                    contentDescription = "Обявления",
-                    modifier = Modifier.size(20.dp))
-
-                Spacer(modifier = Modifier.width(8.dp))
+//                Image(painter = painterResource(R.drawable.notifications),
+//                    contentDescription = "Обявления",
+//                    modifier = Modifier.size(20.dp))
+//                Spacer(modifier = Modifier.width(8.dp))
                 Text("Объявления",
                     fontFamily = FontFamily(
                         Font(R.font.inter_bold, FontWeight.Bold)
@@ -267,17 +311,6 @@ fun HomeTabContent(
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                Text("Все",
-                    fontFamily = FontFamily(
-                        Font(R.font.inter_medium, FontWeight.Normal)
-                    ),
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.clickable {
-                        tabNavController.navigate(NavigationItem.Announcements.route)
-                    }
-                )
-                Spacer(modifier = Modifier.width(12.dp))
                 Box(
                     modifier = Modifier
                         .size(36.dp)
@@ -300,6 +333,17 @@ fun HomeTabContent(
                         modifier = Modifier.size(24.dp),
                         tint = MaterialTheme.colorScheme.primary)
                 }
+//                Spacer(modifier = Modifier.width(12.dp))
+//                Text("Все >",
+//                    fontFamily = FontFamily(
+//                        Font(R.font.inter_medium, FontWeight.Normal)
+//                    ),
+//                    fontSize = 14.sp,
+//                    color = MaterialTheme.colorScheme.primary,
+//                    modifier = Modifier.clickable {
+//                        tabNavController.navigate(NavigationItem.Announcements.route)
+//                    }
+//                )
             }
         }
         item{
@@ -308,16 +352,12 @@ fun HomeTabContent(
             if(announcementsHome.isEmpty()){
                 Text("Пока что объявлений нет")
             } else {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ){
-                    announcementsHome.forEach { announcementItem -> 
-                        AnnouncementCard(
-                            announcementItem,
-                            onDeleteClick = {}
-                        )
+                HomeAnnouncementCard(
+                    announcements = announcementsHome,
+                    onShowAllClick = {
+                        tabNavController.navigate(NavigationItem.Announcements.route)
                     }
-                }
+                )
             }
         }
 //        item{
@@ -410,7 +450,9 @@ fun HomeTabPreview(){
                 onAnnouncementTitleChange = {},
                 onAnnouncementTextChange = {},
                 onAnnouncementTypeChange = {},
-                onCreateAnnouncement = {}
+                onCreateAnnouncement = {},
+                waitingCount = 3,
+                onNavigateGroup = {}
             )
         }
     }
