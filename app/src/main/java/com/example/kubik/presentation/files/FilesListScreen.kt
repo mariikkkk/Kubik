@@ -3,8 +3,6 @@ package com.example.kubik.presentation.files
 import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,20 +17,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -54,19 +46,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.example.kubik.R
-import com.example.kubik.domain.models.FileCategory
-import com.example.kubik.domain.models.FileFolderItem
+import com.example.kubik.domain.files.models.FileCategory
+import com.example.kubik.domain.files.models.FileFolderItem
 import com.example.kubik.presentation.components.SearchBar
 import com.example.kubik.presentation.files.components.CustomDeleteDialog
 import com.example.kubik.presentation.files.components.CustomFolderDialog
 import com.example.kubik.presentation.files.components.CustomUploadDialog
+import com.example.kubik.presentation.files.components.FolderCard
 import com.example.kubik.presentation.theme.KubikTheme
 import com.example.kubik.presentation.theme.glow
 
@@ -108,6 +99,7 @@ fun FilesListScreen(
                 start = 16.dp,
                 end = 16.dp
             )
+            .background(MaterialTheme.colorScheme.background)
         ,
     ) {
         Column(
@@ -118,7 +110,8 @@ fun FilesListScreen(
                 Text(
                     text = "Предметы",
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.headlineMedium
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Box() { // Фильтрация по семестрам
@@ -163,23 +156,6 @@ fun FilesListScreen(
 
                     }
                 }
-//            Spacer(modifier = Modifier.weight(1f))
-//            Button(
-//                onClick = {},
-//                contentPadding = PaddingValues(
-//                    start = 12.dp,
-//                    end = 12.dp,
-//                    top = 4.dp,
-//                    bottom = 4.dp
-//                )
-//            ) {
-//                Icon(
-//                    painter = painterResource(R.drawable.download),
-//                    contentDescription = "Загрузить"
-//                )
-//                Spacer(Modifier.width(4.dp))
-//                Text("Загрузить")
-//            }
             }
             Spacer(modifier = Modifier.height(10.dp))
             SearchBar(
@@ -225,7 +201,7 @@ fun FilesListScreen(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxSize()
-                                        .clip(RoundedCornerShape(12.dp))
+                                        .clip(RoundedCornerShape(24.dp))
                                         .background(color)
                                         .padding(end = 20.dp),
                                     contentAlignment = Alignment.CenterEnd
@@ -238,41 +214,10 @@ fun FilesListScreen(
                                 }
                             },
                             content = {
-                                Card(
-                                    modifier = Modifier.fillMaxWidth().clickable { onFolderClick(item.id) },
-                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-
-                                    ) {
-                                    Row(
-                                        modifier = Modifier.padding(16.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Image(
-                                            painter = painterResource(id = R.drawable.folder_rec),
-                                            contentDescription = "folder",
-                                            modifier = Modifier.size(52.dp)
-
-                                        )
-                                        Spacer(Modifier.width(10.dp))
-                                        Column() {
-                                            Text(
-                                                item.name,
-                                                style = MaterialTheme.typography.titleMedium,
-                                                color = MaterialTheme.colorScheme.onBackground
-                                            )
-                                            Text(
-                                                "${item.countFiles} файлов",
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color = MaterialTheme.colorScheme.onBackground
-                                            )
-                                        }
-                                        Spacer(Modifier.weight(1f))
-                                        Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Открыть")
-
-
-                                    }
-                                }
+                                FolderCard(
+                                    folder = item,
+                                    onClick = { onFolderClick(item.id) }
+                                )
                             }
                         )
                 }

@@ -1,27 +1,21 @@
 package com.example.kubik.presentation.files
 
-import android.app.DownloadManager
-import android.content.Context
-import android.content.Intent
 import android.net.Uri
-import android.webkit.MimeTypeMap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.kubik.data.FirebaseFilesRepositoryImpl
-import com.example.kubik.domain.models.FileCategory
-import com.example.kubik.domain.models.FileFolderItem
-import com.example.kubik.domain.models.FileItem
-import com.example.kubik.domain.models.FileType
-import com.example.kubik.domain.repository.FilesRepository
-import com.example.kubik.domain.usecase.AddFileUseCase
-import com.example.kubik.domain.usecase.AddFolderUseCase
-import com.example.kubik.domain.usecase.DeleteFileUseCase
-import com.example.kubik.domain.usecase.DeleteFolderUseCase
-import com.example.kubik.domain.usecase.GetFilesUseCase
-import com.example.kubik.domain.usecase.GetFoldersUseCase
+import com.example.kubik.domain.files.models.FileCategory
+import com.example.kubik.domain.files.models.FileFolderItem
+import com.example.kubik.domain.files.models.FileItem
+import com.example.kubik.domain.files.usecase.AddFileUseCase
+import com.example.kubik.domain.files.usecase.AddFolderUseCase
+import com.example.kubik.domain.files.usecase.DeleteFileUseCase
+import com.example.kubik.domain.files.usecase.DeleteFolderUseCase
+import com.example.kubik.domain.files.usecase.GetFilesUseCase
+import com.example.kubik.domain.files.usecase.GetFoldersUseCase
+import com.example.kubik.domain.files.usecase.RenameFileUseCase
 import com.example.kubik.domain.usecase.GetUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -30,8 +24,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -42,7 +34,8 @@ class FilesViewModel @Inject constructor(
     private val deleteFileUseCase: DeleteFileUseCase,
     private val deleteFolderUseCase: DeleteFolderUseCase,
     private val addFolderUseCase: AddFolderUseCase,
-    private val getUserUseCase: GetUserUseCase
+    private val getUserUseCase: GetUserUseCase,
+    private val renameFileUseCase: RenameFileUseCase
 ) : ViewModel() {
 
     val currentUser = getUserUseCase().stateIn(
@@ -138,6 +131,12 @@ class FilesViewModel @Inject constructor(
     fun deleteFolder(folderId: Int){
         viewModelScope.launch {
             deleteFolderUseCase(folderId)
+        }
+    }
+
+    fun renameFile(fileId: Int, newName: String){
+        viewModelScope.launch {
+            renameFileUseCase(fileId, newName)
         }
     }
 }

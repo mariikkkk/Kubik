@@ -16,5 +16,6 @@ sealed class NavigationItem(val route: String, val icon: ImageVector? = null, va
     object QueueDetails: NavigationItem("queue_details/{queueId}", title = "Очередь"){
         fun route(queueId: String) = "queue_details/$queueId"
     }
+    object Announcements : NavigationItem("announcements", title = "Объявления")
 
 }

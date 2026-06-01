@@ -2,7 +2,7 @@ package com.example.kubik.di
 
 import android.content.Context
 import com.example.kubik.data.FirebaseFilesRepositoryImpl
-import com.example.kubik.domain.repository.FilesRepository
+import com.example.kubik.domain.files.repository.FilesRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Binds
 import dagger.Module

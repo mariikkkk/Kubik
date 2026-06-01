@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -37,13 +38,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.kubik.R
-import com.example.kubik.domain.models.FileCategory
-import com.example.kubik.domain.models.FileItem
-import com.example.kubik.domain.models.FileType
+import com.example.kubik.domain.files.models.FileCategory
+import com.example.kubik.domain.files.models.FileItem
+import com.example.kubik.domain.files.models.FileType
 import com.example.kubik.presentation.theme.KubikTheme
 import java.text.DecimalFormat
 import kotlin.math.log10
@@ -75,8 +76,8 @@ fun FileCard(
         modifier = modifier
             .fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        shape = RoundedCornerShape(24.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ){
         Row(
             modifier = Modifier
@@ -85,7 +86,8 @@ fun FileCard(
         ){
             Image(painter = painterResource(iconId),
                 contentDescription = "Иконка файла",
-                modifier = Modifier.size(52.dp)
+                modifier = Modifier.size(53.dp)
+                    .offset(y=1.dp, x=1.dp)
             )
             Spacer(modifier = Modifier.width(10.dp))
             Column(Modifier.weight(50f)) {
@@ -202,7 +204,7 @@ fun formatFileSize(sizeInBytes: Long): String {
     ) + " " + units[digitGroups]
 }
 
-@Preview(showBackground = true)
+@PreviewLightDark
 @Composable
 fun FileCardPreview() {
     KubikTheme() {

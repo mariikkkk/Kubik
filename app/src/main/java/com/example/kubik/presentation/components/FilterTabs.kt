@@ -23,10 +23,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import com.example.kubik.domain.models.FileCategory
 import com.example.kubik.presentation.queues.QueueFilter
 import com.example.kubik.presentation.theme.KubikTheme
-import com.example.kubik.presentation.theme.glow
 
 @Composable
 fun <T: Enum<T>>FilterTabs(

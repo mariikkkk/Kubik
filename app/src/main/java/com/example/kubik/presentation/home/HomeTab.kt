@@ -54,7 +54,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.kubik.R
+import com.example.kubik.domain.announcement.model.AnnouncementType
 import com.example.kubik.domain.models.User
+import com.example.kubik.presentation.announcement.AnnouncementUiState
+import com.example.kubik.presentation.announcement.AnnouncementViewModel
+import com.example.kubik.presentation.announcement.components.AnnouncementCard
+import com.example.kubik.presentation.announcement.components.AnnouncementCreateDialog
 import com.example.kubik.presentation.home.components.DeadlineCard
 import com.example.kubik.presentation.home.components.EventCard
 import com.example.kubik.presentation.home.components.GreetingCard
@@ -70,18 +75,26 @@ fun HomeTab(
     tabNavController: NavController,
     innerPadding: PaddingValues,
     viewModel: ProfileViewModel = hiltViewModel(),
-    homeViewModel: HomeViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    announcementViewModel: AnnouncementViewModel = hiltViewModel()
 ){
     val user by viewModel.userState.collectAsStateWithLifecycle()
     val groupName by viewModel.groupName.collectAsStateWithLifecycle()
     val nearestQueueCardState by homeViewModel.nearestQueue.collectAsStateWithLifecycle()
-
+    val announcementUiState by announcementViewModel.uiState.collectAsStateWithLifecycle()
     HomeTabContent(
         user = user,
         tabNavController = tabNavController,
         innerPadding = innerPadding,
         groupName = groupName,
-        nearestQueueCardState = nearestQueueCardState
+        nearestQueueCardState = nearestQueueCardState,
+        announcementUiState = announcementUiState,
+        onOpenAnnouncementDialog = announcementViewModel::openCreateDialog,
+        onCloseAnnouncementDialog = announcementViewModel::closeCreateDialog,
+        onAnnouncementTextChange = announcementViewModel::updateText,
+        onAnnouncementTypeChange = announcementViewModel::selectType,
+        onAnnouncementTitleChange = announcementViewModel::updateTitle,
+        onCreateAnnouncement = announcementViewModel::createAnnouncement
     )
 }
 
@@ -91,7 +104,14 @@ fun HomeTabContent(
     tabNavController: NavController,
     innerPadding: PaddingValues,
     groupName: String,
-    nearestQueueCardState: NearestQueueCardState?
+    nearestQueueCardState: NearestQueueCardState?,
+    announcementUiState: AnnouncementUiState,
+    onOpenAnnouncementDialog: () -> Unit,
+    onCloseAnnouncementDialog: () -> Unit,
+    onAnnouncementTitleChange: (String) -> Unit,
+    onAnnouncementTextChange: (String) -> Unit,
+    onAnnouncementTypeChange: (AnnouncementType) -> Unit,
+    onCreateAnnouncement: () -> Unit
 ){
     val isDarkTheme = LocalIsDarkTheme.current
     val role = when(user?.role){
@@ -253,7 +273,9 @@ fun HomeTabContent(
                     ),
                     fontSize = 14.sp,
                     color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.clickable {  }
+                    modifier = Modifier.clickable {
+                        tabNavController.navigate(NavigationItem.Announcements.route)
+                    }
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Box(
@@ -267,7 +289,10 @@ fun HomeTabContent(
                         .border(
                             BorderStroke(1.5f.dp, MaterialTheme.colorScheme.outline),
                             RoundedCornerShape(32.dp)
-                        ),
+                        )
+                        .clickable{
+                            onOpenAnnouncementDialog()
+                        },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(Icons.Default.Add,
@@ -279,17 +304,21 @@ fun HomeTabContent(
         }
         item{
             Spacer(modifier = Modifier.height(8.dp))
-            NotificationCard(
-                "Перенос пар ⚠\uFE0F",
-                "Завтра первая пара отменяется, приходим ко второй (10:00). Не проспите!",
-                "Сегодня, 14:30"
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            NotificationCard(
-                "Подойдите для подписи",
-                "Все в кабинет И-300!! Нужно срочно подписать бумаги",
-                "Сегодня, 14:30"
-            )
+            val announcementsHome = announcementUiState.filteredAnnouncements.take(3)
+            if(announcementsHome.isEmpty()){
+                Text("Пока что объявлений нет")
+            } else {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ){
+                    announcementsHome.forEach { announcementItem -> 
+                        AnnouncementCard(
+                            announcementItem,
+                            onDeleteClick = {}
+                        )
+                    }
+                }
+            }
         }
 //        item{
 //            Spacer(modifier = Modifier.height(24.dp))
@@ -335,6 +364,18 @@ fun HomeTabContent(
 //            EventCard("Контрольная по матану", "24.03", {})
 //        }
     }
+    if(announcementUiState.showCreateDialog){
+        AnnouncementCreateDialog(
+            title = announcementUiState.titleInput,
+            text = announcementUiState.textInput,
+            selectedType = announcementUiState.selectedType,
+            onTitleChange = onAnnouncementTitleChange,
+            onTextChange = onAnnouncementTextChange,
+            onTypeChange = onAnnouncementTypeChange,
+            onDismissClick = onCloseAnnouncementDialog,
+            onCreateClick = onCreateAnnouncement
+        )
+    }
 }
 @PreviewLightDark
 @Composable
@@ -351,8 +392,9 @@ fun HomeTabPreview(){
         Surface(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
-        ){
-            HomeTabContent(fakeUser,
+        ) {
+            HomeTabContent(
+                fakeUser,
                 tabNavController = navController,
                 innerPadding = PaddingValues(0.dp),
                 groupName = "ИКБО-31-24",
@@ -361,9 +403,16 @@ fun HomeTabPreview(){
                     "Матан",
                     3,
                     System.currentTimeMillis()
-                ))
+                ),
+                announcementUiState = AnnouncementUiState(),
+                onOpenAnnouncementDialog = {},
+                onCloseAnnouncementDialog = {},
+                onAnnouncementTitleChange = {},
+                onAnnouncementTextChange = {},
+                onAnnouncementTypeChange = {},
+                onCreateAnnouncement = {}
+            )
         }
-
     }
 
 }

@@ -1,11 +1,11 @@
-package com.example.kubik.domain.usecase
+package com.example.kubik.domain.files.usecase
 
 import android.net.Uri
-import com.example.kubik.domain.models.FileCategory
-import com.example.kubik.domain.models.FileItem
-import com.example.kubik.domain.models.FileType
+import com.example.kubik.domain.files.models.FileCategory
+import com.example.kubik.domain.files.models.FileItem
+import com.example.kubik.domain.files.models.FileType
 import com.example.kubik.domain.models.User
-import com.example.kubik.domain.repository.FilesRepository
+import com.example.kubik.domain.files.repository.FilesRepository
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject

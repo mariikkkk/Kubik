@@ -9,9 +9,9 @@ import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.PutObjectRequest
 import com.example.kubik.BuildConfig
-import com.example.kubik.domain.models.FileFolderItem
-import com.example.kubik.domain.models.FileItem
-import com.example.kubik.domain.repository.FilesRepository
+import com.example.kubik.domain.files.models.FileFolderItem
+import com.example.kubik.domain.files.models.FileItem
+import com.example.kubik.domain.files.repository.FilesRepository
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -160,18 +160,29 @@ class FirebaseFilesRepositoryImpl @Inject constructor
     }
 
     override suspend fun deleteFile(fileId: Int, folderId: Int) {
-        firestore.collection("files").whereEqualTo("id", fileId).get()
-            .addOnSuccessListener { documents ->
-                for (document in documents){
-                    document.reference.delete()
-                }
-            }.await()
+        val documents = firestore.collection("files")
+            .whereEqualTo("id", fileId)
+            .get()
+            .await()
+        for (document in documents){
+            document.reference.delete()
+        }
         val folderQuery = firestore.collection("folders").whereEqualTo("id", folderId).get().await()
         for (document in folderQuery.documents){
             document.reference.update(
                 "countFiles",
                 FieldValue.increment(-1)
             ).await()
+        }
+    }
+
+    override suspend fun renameFile(fileId: Int, newName: String) {
+        val documents = firestore.collection("files")
+            .whereEqualTo("id", fileId)
+            .get()
+            .await()
+        for (document in documents) {
+            document.reference.update("name", newName).await()
         }
     }
 }

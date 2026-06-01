@@ -1,6 +1,6 @@
-package com.example.kubik.domain.usecase
+package com.example.kubik.domain.files.usecase
 
-import com.example.kubik.domain.repository.FilesRepository
+import com.example.kubik.domain.files.repository.FilesRepository
 import javax.inject.Inject
 
 class DeleteFileUseCase @Inject constructor(

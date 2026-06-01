@@ -1,9 +1,9 @@
 package com.example.kubik.data
 
-import com.example.kubik.domain.models.FileCategory
-import com.example.kubik.domain.models.FileFolderItem
-import com.example.kubik.domain.models.FileItem
-import com.example.kubik.domain.models.FileType
+import com.example.kubik.domain.files.models.FileCategory
+import com.example.kubik.domain.files.models.FileFolderItem
+import com.example.kubik.domain.files.models.FileItem
+import com.example.kubik.domain.files.models.FileType
 import com.google.firebase.firestore.DocumentSnapshot
 
 fun DocumentSnapshot.toFileFolderItem(): FileFolderItem?{

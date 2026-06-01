@@ -1,7 +1,7 @@
-package com.example.kubik.domain.usecase
+package com.example.kubik.domain.files.usecase
 
-import com.example.kubik.domain.models.FileItem
-import com.example.kubik.domain.repository.FilesRepository
+import com.example.kubik.domain.files.models.FileItem
+import com.example.kubik.domain.files.repository.FilesRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
