@@ -5,6 +5,7 @@ import androidx.compose.material3.contentColorFor
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.kubik.domain.models.ThemeMode
@@ -22,8 +23,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
 
 class UserPreferencesRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-
-): UserPreferencesRepository {
+    ): UserPreferencesRepository {
     private companion object{
         val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
         val USER_ID = stringPreferencesKey("user_id")
@@ -31,8 +31,13 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val LAST_NAME = stringPreferencesKey("last_name")
         val GROUP = stringPreferencesKey("group")
         val ROLE = stringPreferencesKey("role")
+        val SELECTED_SEMESTER = intPreferencesKey("selected_semester")
 
     }
+    override val selectedSemesterFlow: Flow<Int> =
+        context.dataStore.data.map { prefs ->
+            prefs[SELECTED_SEMESTER] ?: 1
+        }
     override val themeModeFlow: Flow<ThemeMode> = context.dataStore.data.map { prefs ->
         val themeString = prefs[THEME_MODE_KEY] ?: ThemeMode.SYSTEM.name
         ThemeMode.valueOf(themeString)
@@ -72,4 +77,10 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             prefs.remove(ROLE)
     }
         }
+
+    override suspend fun saveSelectedSemester(semester: Int) {
+        context.dataStore.edit { prefs ->
+            prefs[SELECTED_SEMESTER] = semester
+        }
+    }
 }

@@ -16,7 +16,9 @@ import com.example.kubik.domain.files.usecase.DeleteFolderUseCase
 import com.example.kubik.domain.files.usecase.GetFilesUseCase
 import com.example.kubik.domain.files.usecase.GetFoldersUseCase
 import com.example.kubik.domain.files.usecase.RenameFileUseCase
+import com.example.kubik.domain.usecase.GetSelectedSemesterUseCase
 import com.example.kubik.domain.usecase.GetUserUseCase
+import com.example.kubik.domain.usecase.SaveSelectedSemesterUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,23 +37,20 @@ class FilesViewModel @Inject constructor(
     private val deleteFolderUseCase: DeleteFolderUseCase,
     private val addFolderUseCase: AddFolderUseCase,
     private val getUserUseCase: GetUserUseCase,
-    private val renameFileUseCase: RenameFileUseCase
+    private val renameFileUseCase: RenameFileUseCase,
+    private val saveSelectedSemesterUseCase: SaveSelectedSemesterUseCase,
+    private val getSelectedSemesterUseCase: GetSelectedSemesterUseCase
 ) : ViewModel() {
-
     val currentUser = getUserUseCase().stateIn(
         scope = viewModelScope,
         started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
         initialValue = null
     )
-
     private val _isUploading = MutableStateFlow(false)                                       // StateFlow хранит в себе последнее значение (умеет сообщать об изменениях)
     val isUploading: StateFlow<Boolean> = _isUploading.asStateFlow()                                // Переменная для публичного просмотра. Записать ничего нельзя
-
     private var _firebaseFolders by mutableStateOf<List<FileFolderItem>>(emptyList())
-
     private val _firebaseFiles = MutableStateFlow<List<FileItem>>(emptyList())
     val firebaseFiles: StateFlow<List<FileItem>> = _firebaseFiles.asStateFlow()
-
     private var fileJob: Job? = null
     private var folderJob: Job? = null
     init{
@@ -60,6 +59,11 @@ class FilesViewModel @Inject constructor(
                 if(user != null && user.groupId != null){
                     loadFolders(user.groupId)
                 }
+            }
+        }
+        viewModelScope.launch {
+            getSelectedSemesterUseCase().collect {
+                selectedSemester = it
             }
         }
     }
@@ -113,6 +117,9 @@ class FilesViewModel @Inject constructor(
 
     fun updateSelectedSemester(semester: Int){
         selectedSemester = semester
+        viewModelScope.launch {
+            saveSelectedSemesterUseCase(semester)
+        }
     }
 
     fun deleteFile(fileId: Int, folderId: Int){

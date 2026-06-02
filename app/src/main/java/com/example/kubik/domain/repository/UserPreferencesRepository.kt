@@ -8,9 +8,11 @@ import kotlinx.coroutines.flow.StateFlow
 interface UserPreferencesRepository {
     val themeModeFlow: Flow<ThemeMode>
     val userFlow: Flow<User?>
+    val selectedSemesterFlow: Flow<Int>
     suspend fun setThemeMode(themeMode: ThemeMode)
     suspend fun saveUser(user: User)
     suspend fun deleteUser()
+    suspend fun saveSelectedSemester(semester: Int)
 }
 
 
