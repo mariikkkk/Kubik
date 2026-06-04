@@ -166,7 +166,19 @@ class QueuesRepositoryImpl @Inject constructor(
         )
 
         val newQueueRef = queuesCollection.document()
-        batch.set(newQueueRef, newQueue.copy(id = newQueueRef.id, participantIds = migratedSlots.map{ it.userId}))
+        val migratedUserSlots = migratedSlots
+            .mapIndexed { index, slot ->
+                slot.userId to (index + 1)
+            }
+            .toMap()
+        batch.set(
+            newQueueRef,
+            newQueue.copy(
+                id = newQueueRef.id,
+                participantIds = migratedSlots.map{ it.userId},
+                userSlots = migratedUserSlots
+            )
+        )
         migratedSlots.forEachIndexed { index, slot ->
             val newSlotNumber = index + 1
             val newSlotRef = newQueueRef
